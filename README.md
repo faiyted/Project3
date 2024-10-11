@@ -8,6 +8,14 @@ https://www.kaggle.com/datasets/waqi786/remote-work-and-mental-health
 ## Instructions:
 Pending
 ## Summary Notes:
-Pending
+### Satisfaction with Remote Work by Work Location
+Satisfaction is slightly higher for onsite workers compared to hybrid and remote. <br>
+Remote work has a lower satisfaction rate, with higher percentages in the Neutral and Unsatisfied categories.<br>
+Hybrid work shows a fairly even distribution, with no dominant satisfaction level, which might suggest that hybrid work arrangements cater to a wide range of experiences.
+### Average Hours WOrked by Mental Health Condition
+Overall, while all groups are close to a standard 40-hour workweek, there is a slight trend where increasing hours align with mental health challenges, with burnout showing the highest hours worked. <br>This points to the importance of monitoring workloads and ensuring resources are available to help manage mental health, especially as hours begin to exceed the standard 40-hour mark.
+### High Stress Level by Age Range
+The analysis reveals that stress is particularly high among individuals aged 26-45, highlighting a critical period in life where work, family, and personal development intersect. <br>
+Understanding these trends allows organizations and individuals to take targeted action to mitigate stress, especially for those in the peak of their careers, while recognizing that stress often decreases with age or retirement.
 ## References to any code that is not your own:
 Pending
