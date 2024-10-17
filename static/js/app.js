@@ -1,6 +1,6 @@
 let globalJsonData = []; // Declare a global variable to hold JSON data
 
-async function fetchAndExtractDataset() {
+async function fetchAndConvertData() {
   const datasetUrl = "https://www.kaggle.com/api/v1/datasets/download/waqi786/remote-work-and-mental-health";
   
   try {
@@ -22,39 +22,15 @@ async function fetchAndExtractDataset() {
         console.log("Parsed JSON data:", globalJsonData);
       } else if (fileName.endsWith('.csv')) {
         let csvContent = await zip.file(fileName).async('string');
-        console.log("CSV content:", csvContent);
+        globalJsonData = Papa.parse(csvContent, { header: true }).data; // Store CSV data in JSON format
+        console.log("Parsed CSV data:", globalJsonData);
       }
     }
-  } catch (error) {
-    console.error("Error fetching or extracting the dataset:", error);
-  }
-}
 
-// Function to fetch, convert CSV to JSON, and store in the global variable
-async function fetchAndConvertCSVToJSON() {
-  const datasetUrl = "https://www.kaggle.com/api/v1/datasets/download/waqi786/remote-work-and-mental-health";
-
-  try {
-    // Step 1: Fetch the ZIP file
-    let response = await fetch(datasetUrl);
-    if (!response.ok) throw new Error(`Failed to download: ${response.statusText}`);
-
-    let zipData = await response.arrayBuffer();
-
-    // Step 2: Extract the ZIP using JSZip
-    let zip = await JSZip.loadAsync(zipData);
-    console.log("Files in the ZIP:", Object.keys(zip.files));
-
-    // Step 3: Locate the CSV file
-    let csvFileName = Object.keys(zip.files).find(file => file.endsWith('.csv'));
-    let csvContent = await zip.file(csvFileName).async('string');
-    console.log("CSV content:", csvContent);
-
-    // Step 4: Convert CSV to JSON using PapaParse and store in the global variable
-    globalJsonData = Papa.parse(csvContent, { header: true }).data;
-    console.log("JSON Data:", globalJsonData);
-    
+    // Call the visualization functions with the loaded data
     gender(globalJsonData);
+    workSatisfactionBarChart(globalJsonData);
+    
   } catch (error) {
     console.error("Error fetching or extracting the dataset:", error);
   }
@@ -94,12 +70,78 @@ function gender(data) {
   Plotly.newPlot("pie-chart", chartData, layout);
 }
 
+
+
+function workSatisfactionBarChart(data) {
+  // Initialize objects to store counts and totals
+  let locationSatisfactionCounts = {};
+  let totalByLocation = {};
+
+  // Aggregate data to get counts for each Work_Location and Satisfaction_with_Remote_Work level
+  data.forEach(row => {
+    const location = row["Work_Location"];
+    const satisfaction = row["Satisfaction_with_Remote_Work"];
+
+    if (location && satisfaction) {  // Filter out rows with undefined or empty satisfaction levels
+      // Initialize nested object if it doesn't exist
+      if (!locationSatisfactionCounts[location]) {
+        locationSatisfactionCounts[location] = {};
+        totalByLocation[location] = 0;
+      }
+
+      // Increment the count for the specific satisfaction level
+      locationSatisfactionCounts[location][satisfaction] = (locationSatisfactionCounts[location][satisfaction] || 0) + 1;
+
+      // Increment the total count for this work location
+      totalByLocation[location] += 1;
+    }
+  });
+
+  // Prepare data for Plotly
+  const workLocations = Object.keys(locationSatisfactionCounts);
+  const satisfactionLevels = [...new Set(data.map(row => row["Satisfaction_with_Remote_Work"]))].filter(level => level);  // Filter out undefined or empty levels
+
+  let traces = satisfactionLevels.map((level) => {
+    let counts = workLocations.map(location => locationSatisfactionCounts[location][level] || 0);
+    let percentages = counts.map((count, i) => (count / totalByLocation[workLocations[i]]) * 100);
+
+    return {
+      x: workLocations,
+      y: percentages,
+      name: level,
+      type: 'bar',
+      text: percentages.map(percentage => `${percentage.toFixed(1)}%`),
+      textposition: 'auto',
+      hovertemplate: `${level}: %{y:.1f}%<extra></extra>`,  // Custom hover text
+    };
+  });
+
+  // Define layout
+  let layout = {
+    title: "Satisfaction with Remote Work by Work Location",
+    xaxis: {
+      title: "Work Location",
+    },
+    yaxis: {
+      title: "Percentage (%)"
+    },
+    barmode: 'group',
+    width: 1000,
+    height: 600,
+  };
+
+  // Render plot
+  Plotly.newPlot('bar-chart', traces, layout);
+}
+
+
+
+
 // Blank function to use the global variable in another feature
 function nextFeature() {
   // Access globalJsonData here
   console.log("Next feature using globalJsonData:", globalJsonData);
 }
 
-// Call the functions to fetch data and initiate processing
-fetchAndExtractDataset();
-fetchAndConvertCSVToJSON();
+// Call the function to fetch data and initiate processing
+fetchAndConvertData();
