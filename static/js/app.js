@@ -101,6 +101,13 @@ function workSatisfactionBarChart(data) {
   const workLocations = Object.keys(locationSatisfactionCounts);
   const satisfactionLevels = [...new Set(data.map(row => row["Satisfaction_with_Remote_Work"]))].filter(level => level);  // Filter out undefined or empty levels
 
+  // Define colors for each satisfaction level
+  const colors = {
+    "Unsatisfied": "#002244",  
+    "Satisfied": "#69BE28",    
+    "Neutral": "#A5ACAF"       
+  };
+
   let traces = satisfactionLevels.map((level) => {
     let counts = workLocations.map(location => locationSatisfactionCounts[location][level] || 0);
     let percentages = counts.map((count, i) => (count / totalByLocation[workLocations[i]]) * 100);
@@ -113,6 +120,7 @@ function workSatisfactionBarChart(data) {
       text: percentages.map(percentage => `${percentage.toFixed(1)}%`),
       textposition: 'auto',
       hovertemplate: `${level}: %{y:.1f}%<extra></extra>`,  // Custom hover text
+      marker: { color: colors[level] || '#d3d3d3' }  // Use specified color, default to light grey if not defined
     };
   });
 
@@ -133,6 +141,7 @@ function workSatisfactionBarChart(data) {
   // Render plot
   Plotly.newPlot('bar-chart', traces, layout);
 }
+
 
 
 
