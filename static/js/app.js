@@ -56,6 +56,7 @@ async function fetchAndConvertCSVToJSON() {
     const jsonData = Papa.parse(csvContent, { header: true }).data;
     console.log("JSON Data:", jsonData);
     gender(jsonData)
+    createHeatmap(jsonData)
   } catch (error) {
     console.error("Error fetching or extracting the dataset:", error);
   }
@@ -95,4 +96,75 @@ function gender(jsonData){
 
   }
 
+  
+  function createHeatmap(jsonData) {
+    const regions = [...new Set(jsonData.map(row => row["Region"]))];
+    const dropdownOptions = regions.map(region => ({
+      label: region,
+      method: "update",
+      args: [{
+        visible: regions.map(r => r === region)
+      }]
+    }));
+  
+    const data = regions.map(region => {
+      const filteredData = jsonData.filter(row => row["Region"] === region);
+      const workLocations = [...new Set(filteredData.map(row => row["Work_Location"]))];
+      const industries = [...new Set(filteredData.map(row => row["Industry"]))];
+  
+      const zValues = industries.map(industry => 
+        workLocations.map(location => 
+          filteredData.filter(row => row["Industry"] === industry && row["Work_Location"] === location).length
+        )
+      );
+  
+      return {
+        x: workLocations,
+        y: industries,
+        z: zValues,
+        type: 'heatmap',
+        colorscale: 'Viridis',
+        showscale: true,
+        name: region,
+        visible: region === regions[0] // Only the first region is visible initially
+      };
+    });
+  
+    const layout = {
+      title: 'Heatmap of Work Location, Industry, and Mental Health Condition',
+      xaxis: {
+        title: 'Work Location'
+      },
+      yaxis: {
+        title: 'Industry'
+      },
+      annotations: [],
+      updatemenus: [{
+        buttons: dropdownOptions,
+        direction: "down",
+        showactive: true
+      }]
+    };
+  
+    // Add annotations for each cell
+    data.forEach((trace, traceIndex) => {
+      trace.z.forEach((row, rowIndex) => {
+        row.forEach((value, colIndex) => {
+          layout.annotations.push({
+            x: trace.x[colIndex],
+            y: trace.y[rowIndex],
+            text: value,
+            showarrow: false,
+            font: {
+              color: 'white'
+            },
+            visible: trace.visible
+          });
+        });
+      });
+    });
+  
+    Plotly.newPlot('chart', data, layout);
+  }
+  
 fetchAndConvertCSVToJSON();
