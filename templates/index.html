@@ -12,65 +12,24 @@
 
 <body>
 
-  <h1>CSV to JSON Viewer</h1>
-  <button onclick="fetchData()">Load Data</button>
-  <table id="data-table">
-      <thead>
-          <tr id="table-header"></tr>
-      </thead>
-      <tbody id="table-body"></tbody>
-  </table>
-  <script>
-    // Function to fetch data from Flask route
-    async function fetchData() {
-        try {
-            const response = await fetch('/csv_to_json');
-            const data = await response.json();
-            if (response.ok) {
-                displayData(data);
-            } else {
-                console.error("Error fetching data:", data.error);
-            }
-        } catch (error) {
-            console.error("Fetch error:", error);
-        }
-    }
+  <h1>CSV to JSON Viewer with D3.js</h1>
+    <button onclick="loadData()">Load Data</button>
+    <table id="data-table">
+        <thead>
+            <tr id="table-header"></tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+    </table>
 
-    // Function to display data in an HTML table
-    function displayData(data) {
-    const tableHeader = document.getElementById('table-header');
-    const tableBody = document.getElementById('table-body');
+    <!-- Link to the external JavaScript file -->
+    
+    
 
-    // Clear previous table data
-    tableHeader.innerHTML = '';
-    tableBody.innerHTML = '';
-
-    if (data.length > 0) {
-        // Create table headers
-        const headers = Object.keys(data[0]);
-        headers.forEach(header => {
-            const th = document.createElement('th');
-            th.textContent = header;
-            tableHeader.appendChild(th);
-        });
-
-        // Populate table rows
-        data.forEach(row => {
-            const tr = document.createElement('tr');
-            headers.forEach(header => {
-                const td = document.createElement('td');
-                const value = row[header] !== null ? row[header] : 'None';  // Show 'None' for null values
-                td.textContent = value;
-                tr.appendChild(td);
-            });
-            tableBody.appendChild(tr);
-        });
-    }
-}
-</script>
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-  <script src="./static/js/app.js"></script>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+  <!-- <script src="./static/js/.js"></script> -->
 </body>
 
 </html>
