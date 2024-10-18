@@ -14,20 +14,23 @@ db = client["remote"]
 collection = db["collectionName"]
 
 # Route for the root URL
+# @app.route('/')
+# def home():
+#     return jsonify({"message": "Welcome to the MongoDB Flask API!"}), 200
 @app.route('/')
 def home():
-    return jsonify({"message": "Welcome to the MongoDB Flask API!"}), 200
-
+    return render_template('index.html')
 
 @app.route('/csv_to_json', methods=['GET'])
 def csv_to_json():
     try:
         # Load the CSV file
         df = pd.read_csv("Impact_of_Remote_Work_on_Mental_Health.csv")
+        df = df.where(pd.notnull(df), None)
         
         # Convert DataFrame to JSON
         data_json = df.to_dict(orient='records')
-        
+
         return jsonify(data_json), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
