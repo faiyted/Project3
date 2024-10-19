@@ -12,24 +12,19 @@
 
 <body>
 
-  <h1>CSV to JSON Viewer with D3.js</h1>
-    <button onclick="loadData()">Load Data</button>
-    <table id="data-table">
-        <thead>
-            <tr id="table-header"></tr>
-        </thead>
-        <tbody id="table-body"></tbody>
-    </table>
 
+    <!-- This is an example -->
+    <h2>Gender Distribution</h2>
+    <div id="genderPieChart"></div>
     <!-- Link to the external JavaScript file -->
     
     
-
+  <script src="static/script.js"></script>
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <script src="{{ url_for('static', filename='script.js') }}"></script>
 
-  <!-- <script src="./static/js/.js"></script> -->
+
 </body>
 
 </html>
