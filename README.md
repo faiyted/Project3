@@ -1,4 +1,4 @@
-# Project3 - Remote Work & Mental Health
+# Project 3 - Remote Work & Mental Health
 
 # Team Members:
   - Laura Sunley
