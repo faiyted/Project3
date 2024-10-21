@@ -14,10 +14,17 @@ db = client["remote"]
 collection = db["collectionName"]
 
 
+# Route to render index.html
 @app.route('/')
 def home():
     return render_template('index.html')
 
+# Route to render index2.html
+@app.route('/index2')
+def index2():
+    return render_template('index2.html')
+
+# Route to handle MongoDB data
 @app.route('/mongo_data', methods=['GET'])
 def mongo_data():
     try:
@@ -29,7 +36,7 @@ def mongo_data():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
+# Route to handle CSV to JSON conversion
 @app.route('/csv_to_json', methods=['GET'])
 def csv_to_json():
     try:
@@ -43,6 +50,7 @@ def csv_to_json():
         return jsonify(data_json), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 # Run the Flask app
 if __name__ == '__main__':
