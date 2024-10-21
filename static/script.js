@@ -1,13 +1,4 @@
-// Fetch and process the MongoDB data
-d3.json('/mongo_data')
-  .then(mongoData => {
-    console.log("MongoDB Data:", mongoData);  // Log MongoDB data to the console
-    // You can also process the MongoDB data and use it for chart rendering if needed.
-  })
-  .catch(error => {
-    console.error("Error fetching MongoDB data:", error);
-  });
-
+// ALL OF SUSAN'S GRAPH
 // Fetch and process the MongoDB data
 d3.json('/mongo_data')
   .then(mongoData => {
@@ -17,24 +8,28 @@ d3.json('/mongo_data')
       Mental_Health_Condition: d.Mental_Health_Condition || 'None',
       Work_Location: d.Work_Location || 'None',
       Region: d.Region || 'None',
+      Satisfaction_with_Remote_Work: d.Satisfaction_with_Remote_Work || 'None',
       Value: d.Value || 1  // Replace `Value` with the appropriate field if needed
     }));
 
     console.log("MongoDB Data:", data);
     populateFilters(data);  // Populate the dropdown filters
-    renderCircularBarChart(data);  // Initial chart rendering
+    renderCircularBarChart(data);  // Initial circular chart rendering
+    renderBarChart(data);  // Initial bar chart rendering
 
     // Add event listeners to each dropdown
     document.querySelectorAll('select').forEach(select => {
       select.addEventListener('change', () => {
         const filteredData = filterData(data);  // Filter data based on the selections
-        renderCircularBarChart(filteredData);  // Update the chart with filtered data
+        renderCircularBarChart(filteredData);  // Update the circular chart with filtered data
+        renderBarChart(filteredData);  // Update the bar chart with filtered data
       });
     });
   })
   .catch(error => {
     console.error("Error fetching MongoDB data:", error);
   });
+
 
 // Populate the dropdown filters dynamically based on the dataset
 function populateFilters(data) {
@@ -111,3 +106,80 @@ function renderCircularBarChart(data) {
 
   Plotly.newPlot('chart', [trace], layout);
 }
+// END OF SUSAN'S GRAPH
+
+
+
+// ALL OF LAURA'S GRAPH
+// Function to render the bar chart with Seahawks colors, percentages, capped y-axis at 35%, and custom labels
+function renderBarChart(data) {
+  // Prepare data for the bar chart
+  const locations = [...new Set(data.map(d => d.Work_Location))];  // Get unique work locations
+
+  // Map satisfaction levels to custom labels
+  const satisfactionLabels = {
+    'None': 'Unsatisfied',
+    '1': 'Neutral',
+    '2': 'Satisfied'
+  };
+
+  const satisfactionLevels = [...new Set(data.map(d => d.Satisfaction_with_Remote_Work))];  // Get unique satisfaction levels
+
+  // Calculate total counts for each location
+  const totalByLocation = locations.map(location => 
+    data.filter(d => d.Work_Location === location).length
+  );
+
+  // Define Seahawks colors: Blue (#002244), Green (#69BE28), Grey (#A5ACAF)
+  const seahawksColors = ['#002244', '#69BE28', '#A5ACAF'];
+
+  const traceData = satisfactionLevels.map((satisfaction, index) => {
+    return {
+      x: locations,
+      y: locations.map((location, i) => {
+        const count = data.filter(d => d.Work_Location === location && d.Satisfaction_with_Remote_Work === satisfaction).length;
+        const percentage = (count / totalByLocation[i]) * 100;
+        return percentage;  // Use raw percentage for y values
+      }),
+      name: satisfactionLabels[satisfaction] || satisfaction,  // Use custom labels or fallback to the original value
+      type: 'bar',
+      marker: {
+        color: seahawksColors[index % seahawksColors.length]  // Use Seahawks colors
+      },
+      text: locations.map((location, i) => {
+        const count = data.filter(d => d.Work_Location === location && d.Satisfaction_with_Remote_Work === satisfaction).length;
+        const percentage = (count / totalByLocation[i]) * 100;
+        return `${percentage.toFixed(1)}%`;  // Display percentage at the top of each bar
+      }),
+      textposition: 'auto',  // Display percentage on top of each bar
+      hoverinfo: 'none'  // Turn off hover effect
+    };
+  });
+
+  const layout = {
+    title: {
+      text: 'Satisfaction with Remote Work by Work Location',
+      font: {
+        family: 'Arial, sans-serif',  // You can specify the font family if needed
+        size: 18,  // Set the font size
+        weight: 'bold',  // Make the text bold
+      }
+    },
+    barmode: 'group',  // Group bars by location
+    xaxis: {
+      title: 'Work Location',
+      tickangle: -45
+    },
+    yaxis: {
+      title: 'Percentage (%)',
+      range: [0, 40],  // Cap the y-axis maximum at 35%
+    },
+    margin: { t: 40, l: 40, r: 20, b: 80 },
+    showlegend: true
+  };
+  
+
+  // Render the bar chart
+  Plotly.newPlot('barChart', traceData, layout);
+}
+// END OF LAURA'S GRAPH
