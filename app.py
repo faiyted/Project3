@@ -13,13 +13,22 @@ client = MongoClient("mongodb://localhost:27017/")
 db = client["remote"]
 collection = db["collectionName"]
 
-# Route for the root URL
-# @app.route('/')
-# def home():
-#     return jsonify({"message": "Welcome to the MongoDB Flask API!"}), 200
+
 @app.route('/')
 def home():
     return render_template('index.html')
+
+@app.route('/mongo_data', methods=['GET'])
+def mongo_data():
+    try:
+        # Fetch data from MongoDB collection
+        data = list(collection.find({}, {'_id': 0}))  # Exclude the MongoDB `_id` field if not needed
+
+        # Convert MongoDB cursor to JSON
+        return jsonify(data), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 @app.route('/csv_to_json', methods=['GET'])
 def csv_to_json():

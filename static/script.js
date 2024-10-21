@@ -1,30 +1,40 @@
-
-// Fetch and process the data
-d3.json('/csv_to_json')
-.then(data => {
-  data = data.map(d => ({
-    Industry: d.Industry || 'None',
-    Mental_Health_Condition: d.Mental_Health_Condition || 'None',
-    Work_Location: d.Work_Location || 'None',
-    Region: d.Region || 'None',
-    Value: d.Value || 1
-  }));
-
-  console.log("Initial Data:", data);
-  populateFilters(data);  // Populate the dropdown filters
-  renderCircularBarChart(data);  // Initial chart rendering
-
-  // Add event listeners to each dropdown
-  document.querySelectorAll('select').forEach(select => {
-    select.addEventListener('change', () => {
-      const filteredData = filterData(data);  // Filter data based on the selections
-      renderCircularBarChart(filteredData);  // Update the chart with filtered data
-    });
+// Fetch and process the MongoDB data
+d3.json('/mongo_data')
+  .then(mongoData => {
+    console.log("MongoDB Data:", mongoData);  // Log MongoDB data to the console
+    // You can also process the MongoDB data and use it for chart rendering if needed.
+  })
+  .catch(error => {
+    console.error("Error fetching MongoDB data:", error);
   });
-})
-.catch(error => {
-  console.error("Error fetching or processing the dataset:", error);
-});
+
+// Fetch and process the MongoDB data
+d3.json('/mongo_data')
+  .then(mongoData => {
+    // Assume the MongoDB structure is similar to your CSV data
+    const data = mongoData.map(d => ({
+      Industry: d.Industry || 'None',
+      Mental_Health_Condition: d.Mental_Health_Condition || 'None',
+      Work_Location: d.Work_Location || 'None',
+      Region: d.Region || 'None',
+      Value: d.Value || 1  // Replace `Value` with the appropriate field if needed
+    }));
+
+    console.log("MongoDB Data:", data);
+    populateFilters(data);  // Populate the dropdown filters
+    renderCircularBarChart(data);  // Initial chart rendering
+
+    // Add event listeners to each dropdown
+    document.querySelectorAll('select').forEach(select => {
+      select.addEventListener('change', () => {
+        const filteredData = filterData(data);  // Filter data based on the selections
+        renderCircularBarChart(filteredData);  // Update the chart with filtered data
+      });
+    });
+  })
+  .catch(error => {
+    console.error("Error fetching MongoDB data:", error);
+  });
 
 // Populate the dropdown filters dynamically based on the dataset
 function populateFilters(data) {
