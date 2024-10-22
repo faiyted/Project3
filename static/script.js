@@ -33,6 +33,9 @@ d3.json('/mongo_data')
     renderBarChart(data);  // Initial bar chart rendering
     renderStackedBarChartForPhysicalActivity(data);
     mentalPhy(data);
+    drawJobBarChart(data, 'Industry', 'Job_Role');
+    drawBarChart(data);
+    drawSunburstChart(data);
 
     // Add event listeners to each dropdown
     document.querySelectorAll('select').forEach(select => {
@@ -399,3 +402,186 @@ function mentalPhy(data) {
 
 
 
+// BEGINNING OF YILANG
+// Function to draw the job bar chart based on two x-axis fields
+function drawJobBarChart(data, xAxisField1, xAxisField2) {
+  const colors = {
+    "HR": "#456d9f",
+    "Sales": "#c08552",
+    "Marketing": "#5c8c5b",
+    "Software Engineer": "#984948",
+    "Designer": "#8c75a7",
+    "Project Manager": "#75564b",
+    "Data Scientist": "#d89bb3"
+  };
+
+  const groupedData = d3.group(data, d => d[xAxisField1], d => d[xAxisField2]);
+
+  const industryCategories = Array.from(groupedData.keys());
+  const jobRoleCategories = Array.from(new Set(data.map(d => d[xAxisField2])));
+
+  let traces = [];
+
+  jobRoleCategories.forEach(jobRole => {
+    let counts = [];
+
+    industryCategories.forEach(industry => {
+      const industryData = groupedData.get(industry) || new Map();
+      const jobRoleData = industryData.get(jobRole) || [];
+      counts.push(jobRoleData.length);  // Count the number of entries for this combination
+    });
+
+    traces.push({
+      x: industryCategories,
+      y: counts,
+      name: jobRole,
+      type: 'bar',
+      marker: { color: colors[jobRole] || '#cccccc' }  // Assign color or default
+    });
+  });
+
+  const layout = {
+    title: `${xAxisField1.replace('_', ' ')} and ${xAxisField2.replace('_', ' ')} Distribution`,
+    barmode: 'stack',
+    xaxis: { title: xAxisField1.replace('_', ' ') },
+    yaxis: { title: 'Number of People' },
+  };
+
+  Plotly.newPlot('job-bar-chart', traces, layout);
+}
+
+// Function to draw the gender distribution bar chart based on years of experience
+function drawBarChart(data) {
+  const groupedData = d3.group(data, d => d.Years_of_Experience);
+
+  const yearsExperience = Array.from(groupedData.keys());
+
+  let femaleCounts = [];
+  let maleCounts = [];
+  let nonBinaryCounts = [];
+  let preferNotToSayCounts = [];
+
+  yearsExperience.forEach(year => {
+    const yearData = groupedData.get(year) || [];
+
+    let femaleCount = 0;
+    let maleCount = 0;
+    let nonBinaryCount = 0;
+    let preferNotToSayCount = 0;
+
+    yearData.forEach(d => {
+      switch (d.Gender) {
+        case 'Female':
+          femaleCount++;
+          break;
+        case 'Male':
+          maleCount++;
+          break;
+        case 'Non-binary':
+          nonBinaryCount++;
+          break;
+        case 'Prefer not to say':
+          preferNotToSayCount++;
+          break;
+      }
+    });
+
+    femaleCounts.push(femaleCount);
+    maleCounts.push(maleCount);
+    nonBinaryCounts.push(nonBinaryCount);
+    preferNotToSayCounts.push(preferNotToSayCount);
+  });
+
+  const femaleTrace = {
+    x: yearsExperience,
+    y: femaleCounts,
+    name: 'Female',
+    type: 'bar',
+    marker: { color: '#1f77b4' }
+  };
+
+  const maleTrace = {
+    x: yearsExperience,
+    y: maleCounts,
+    name: 'Male',
+    type: 'bar',
+    marker: { color: '#ff7f0e' }
+  };
+
+  const nonBinaryTrace = {
+    x: yearsExperience,
+    y: nonBinaryCounts,
+    name: 'Non-binary',
+    type: 'bar',
+    marker: { color: '#2ca02c' }
+  };
+
+  const preferNotToSayTrace = {
+    x: yearsExperience,
+    y: preferNotToSayCounts,
+    name: 'Prefer not to say',
+    type: 'bar',
+    marker: { color: '#d62728' }
+  };
+
+  const layout = {
+    title: 'Years of Experience vs Gender Distribution',
+    xaxis: { title: 'Years of Experience' },
+    yaxis: { title: 'Count of Employees' },
+    barmode: 'group'
+  };
+
+  Plotly.newPlot('bar-chart', [femaleTrace, maleTrace, nonBinaryTrace, preferNotToSayTrace], layout);
+}
+
+// Function to draw the Sunburst chart
+function drawSunburstChart(data) {
+  let labels = [];
+  let parents = [];
+  let values = [];
+
+  const experienceGroups = d3.group(data, d => d.Years_of_Experience);
+
+  experienceGroups.forEach((groupData, experience) => {
+    const experienceLabel = `${experience} Years of Experience`;
+    labels.push(experienceLabel);
+    parents.push('');
+    values.push(groupData.length);
+
+    const hoursGroups = d3.group(groupData, d => d.Hours_Worked_Per_Week);
+
+    hoursGroups.forEach((subGroupData, hours) => {
+      const hoursLabel = `${hours} Hours/Week (${experience} Years)`;
+      labels.push(hoursLabel);
+      parents.push(experienceLabel);
+      values.push(subGroupData.length);
+
+      const balanceGroups = d3.group(subGroupData, d => d.Work_Life_Balance_Rating);
+
+      balanceGroups.forEach((finalGroupData, balance) => {
+        const balanceLabel = `Work-Life Balance: ${balance} (${hours} Hours/${experience} Years)`;
+        labels.push(balanceLabel);
+        parents.push(hoursLabel);
+        values.push(finalGroupData.length);
+      });
+    });
+  });
+
+  const trace = {
+    type: 'sunburst',
+    labels: labels,
+    parents: parents,
+    values: values,
+    leaf: { opacity: 0.6 },
+    marker: { line: { width: 2 } },
+    branchvalues: 'total'
+  };
+
+  const layout = {
+    title: 'Sunburst Chart: Experience, Hours Worked, and Work-Life Balance',
+    width: 600,
+    height: 600
+  };
+
+  Plotly.newPlot('sunburst-chart', [trace], layout);
+}
