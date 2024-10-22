@@ -144,6 +144,51 @@ function workSatisfactionBarChart(data) {
 
 
 
+// Your drawChart function
+function drawChart(data, xAxisField1, xAxisField2) {
+  const groupedData = d3.group(data, d => d[xAxisField1], d => d[xAxisField2]);
+
+  const industryCategories = Array.from(groupedData.keys());
+  const jobRoleCategories = Array.from(new Set(data.map(d => d[xAxisField2]))); // Unique Job Roles
+
+  const colors = {
+    "HR": "#456d9f",
+    "Sales":"#c08552",
+    "Marketing":"#5c8c5b",
+    "Software Engineer": "#984948",
+    "Designer":"#8c75a7",
+    "Project Manager":"#75564b",
+    "Data Scientist":"#d89bb3"
+  }
+
+  let traces = [];
+
+  jobRoleCategories.forEach(jobRole => {
+      let counts = [];
+
+      industryCategories.forEach(industry => {
+          const industryData = groupedData.get(industry) || new Map();
+          const jobRoleData = industryData.get(jobRole) || [];
+          counts.push(jobRoleData.length);  // Push count of each combination
+      });
+
+      traces.push({
+          x: industryCategories,
+          y: counts,
+          name: jobRole,
+          type: 'bar'
+      });
+  });
+
+  const layout = {
+      title: `${xAxisField1.replace('_', ' ')} and ${xAxisField2.replace('_', ' ')} Distribution`,
+      barmode: 'stack',
+      xaxis: { title: xAxisField1.replace('_', ' ') },
+      yaxis: { title: 'Number of People' },
+  };
+
+  Plotly.newPlot('job-bar-chart', traces, layout);
+}
 
 
 // Blank function to use the global variable in another feature

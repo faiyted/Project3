@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project 3- Analysis</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <style>
+        .chart-container {
+            height: 400px;
+        }
+
+        #xAxisSelect {
+            margin-bottom: 15px;
+            padding: 5px;
+        }
+
+        .chart-title {
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+
+        img {
+            width: 100%;
+            height: 500px; 
+            border-radius: 8px;
+        }
+
+        .grid-item {
+            padding: 20px;
+        }
+    </style>
+</head>
+
+<body class="container mt-4">
+
+    <div class="row">
+      <div class="col-md-12 p-5 text-center bg-light">
+        <h1>Remote Work & Mental Health Dashboard</h1>
+      </div>
+    </div>
+    <div class="row p-3">
+      <div>
+        <h5 class="text-center"></h1>
+      </div>
+    </div>
+
+
+    <div class="row">
+<div class="col-md-6 grid-item">
+            <div class="header-container">
+                <div class="chart-title">Years of Exprience, Hours Worked per week vs Age by gender</div>
+                <label for="xAxisSelect" class="me-2">Select:</label>
+                <select id="xAxisSelect" class="form-select w-auto d-inline-block">
+                    <option value="Physical_Activity">Year of Experience </option>
+                    <option value="Mental_Health_Condition">Hours Worked Per Week</option>
+                </select>
+            </div>
+            <div id="job-bar-chart"  style="height: 600px;"></div>
+        </div>
+
+        <div class="col-md-6 grid-item">
+            <div class="chart-title">Job Role and Industry</div>
+            <!-- <img src="../Impact of physical activity and sleep quality on mental health condition.png"
+                alt="Impact of physical activity and sleep quality on mental health condition"> -->
+        </div>
+        <div id="summary" style="margin-top: 20px; text-align: center;">
+            <b>Summary</b><br>
+            This chart allows viewers to quickly assess the distribution of job roles across various industries.<br>
+            By comparing the heights of the bars, one can identify which job roles are most common within each industry, as well as which industries have the most diverse job roles.<br>
+            This visualization can be particularly useful for understanding labor market trends and making informed decisions regarding workforce development and recruitment strategies.
+          <br><br><br></div>
+    </div>
+    <div id="bar-chart" style="width: 1500px; height: 1000px;"></div>
+    <div class="col-md-6 grid-item">
+        <div class="chart-title">Years of Experience Vs Age by Gender </div>
+
+        <div id="summary" style="margin-top: 20px; text-align: center;">
+            <b>Summary</b><br>
+            As individuals age, total experience tends to increase, particularly for females in the younger age groups.<br>
+            Males have consistently higher average experience at younger ages, but this trend appears to shift as they age, particularly in the 46-55 age group where females surpass them.<br>
+            The highest total experiences are found in the 26-35 age group, indicating a peak work experience level during these years.<br>
+            In older age groups, experience levels drop, likely reflecting retirement trends and reduced workforce participation.<br>
+            Females tend to have slightly lower total experiences in the youngest age group, but their averages rise significantly in the older age brackets.<br>
+            Males generally have higher total experience in the early years but see a decline relative to females as age increases.
+          <br><br><br><br><br><br></div>
+    </div>
+
+    <div id="sunburst-chart" style="width:900px;height:900px;"></div>
+
+    <div class="col-md-6 grid-item">
+        <div class="chart-title">Work life Balance Rating in Years of Experience and Hour Worked per Week </div>
+    
+
+    <!-- <div class="row">
+
+    
+
+          <div class="col-md-6 grid-item">
+            <div class="chart-title">Impact of virtual meetings and social isolation on work location</div>
+            <img src="../Impact of virtual meetings and social isolation on work location.png"
+                alt="Impact of virtual meetings and social isolation on work location">
+        </div> -->
+
+
+                <div class="col-md-6 grid-item"></div>
+
+    </div>
+
+    <script src="../static/js/app1.js">
+
+    </script>
+
+</body>
+
+</html>
