@@ -31,7 +31,7 @@ Understanding these trends allows organizations and individuals to take targeted
 ### Industry Benefits from Remote Work
 Consulting and IT industries benefit the most from remote work in terms of satisfaction, with the majority of employees in remote setups being satisfied compared to hybrid and onsite
 ### Impact of Work Location on Mental Health
-Remote work shows slightly higher instances of anxiety and burnout, but also more individuals with no mental health conditions (420).
+Remote work shows slightly higher instances of anxiety and burnout, but also more individuals with no mental health conditions.
 <br>
 Onsite work has a lower prevalence of "None" in terms of mental health conditions, with higher rates of burnout.
 
