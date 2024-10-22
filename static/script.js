@@ -23,21 +23,21 @@ d3.json('/mongo_data')
       Gender: d.Gender || 'None',
       Satisfaction_with_Remote_Work: d.Satisfaction_with_Remote_Work || 'None',
       Age: d.Age || 'None',
-      Years_of_Experience: d.Years_of_Experience || 'None',
-      Value: d.Value || 1  // Replace `Value` with the appropriate field if needed
+      Years_of_Experience: parseFloat(d.Years_of_Experience) || 0,
+      Value: d.Value || 1  
     }));
 
-
     console.log("MongoDB Data:", data);
-    populateFilters(data);  // Populate the dropdown filters
-    renderCircularBarChart(data);  // Initial circular chart rendering
-    renderBarChart(data);  // Initial bar chart rendering
+    populateFilters(data);  
+    renderCircularBarChart(data);  
+    renderBarChart(data);  
     hoursMental(data);
     renderStackedBarChartForPhysicalActivity(data);
     mentalPhy(data);
     drawJobBarChart(data, 'Industry', 'Job_Role');
     drawBarChart(data);
     drawSunburstChart(data);
+    drawLineChartByAgeAndGender(data);
     mentalHealthResourcesChart(data);
     productivityChangeChart(data);
     stressLevelsBubbleChart(data);
@@ -45,15 +45,9 @@ d3.json('/mongo_data')
     // Add event listeners to each dropdown
     document.querySelectorAll('select').forEach(select => {
       select.addEventListener('change', () => {
-        const filteredData = filterData(data);  // Filter data based on the selections
-        renderCircularBarChart(filteredData);  // Update the circular chart with filtered data
-        renderBarChart(filteredData);  // Update the bar chart with filtered data
-        hoursMental(filteredData);
-        renderStackedBarChartForPhysicalActivity(filteredData);
-        mentalPhy(filteredData);
-        drawJobBarChart(filteredData, 'Industry', 'Job_Role');
-        drawBarChart(filteredData);
-        drawSunburstChart(filteredData);
+        const filteredData = filterData(data);  
+        renderCircularBarChart(filteredData);  
+        renderBarChart(filteredData);  
         mentalHealthResourcesChart(filteredData);
         productivityChangeChart(filteredData);
         stressLevelsBubbleChart(filteredData);
@@ -70,11 +64,23 @@ function populateFilters(data) {
   populateDropdown('regionFilter', [...new Set(data.map(d => d.Region))]);
   populateDropdown('workLocationFilter', [...new Set(data.map(d => d.Work_Location))]);
   populateDropdown('healthConditionFilter', [...new Set(data.map(d => d.Mental_Health_Condition))]);
-}
+  populateDropdown('stressLevelFilter', [...new Set(data.map(d => d.Stress_Level))]);
+  populateDropdown('hoursWorkedFilter', [...new Set(data.map(d => d.Hours_Worked_Per_Week))]);
+  populateDropdown('virtualMeetingsFilter', [...new Set(data.map(d => d.Number_of_Virtual_Meetings))], true); // Sorting virtual meetings}
 
 // Helper to populate a dropdown by its ID
-function populateDropdown(elementId, options) {
+function populateDropdown(elementId, options, sortVirtualMeetings = false) {
   const dropdown = document.getElementById(elementId);
+
+  // Sort "None" first and numbers ascending for virtual meetings filter
+  if (sortVirtualMeetings) {
+    options.sort((a, b) => {
+      if (a === 'None') return -1;
+      if (b === 'None') return 1;
+      return a - b;
+    });
+  }
+
   dropdown.innerHTML = '<option value="">All</option>';  // Add an "All" option
   options.forEach(option => {
     const opt = document.createElement('option');
@@ -89,11 +95,18 @@ function filterData(data) {
   const region = document.getElementById('regionFilter').value;
   const workLocation = document.getElementById('workLocationFilter').value;
   const healthCondition = document.getElementById('healthConditionFilter').value;
+  const stressLevel = document.getElementById('stressLevelFilter').value;
+  const hoursWorked = document.getElementById('hoursWorkedFilter').value;
+  const virtualMeetings = document.getElementById('virtualMeetingsFilter').value;
 
   return data.filter(d =>
     (region === '' || d.Region === region) &&
     (workLocation === '' || d.Work_Location === workLocation) &&
-    (healthCondition === '' || d.Mental_Health_Condition === healthCondition)
+    (healthCondition === '' || d.Mental_Health_Condition === healthCondition) &&
+    (virtualMeetings === '' || d.Number_of_Virtual_Meetings == virtualMeetings)
+    (stressLevel === '' || d.Stress_Level === stressLevel) &&
+    (hoursWorked === '' || d.Hours_Worked_Per_Week == hoursWorked) &&
+    (virtualMeetings === '' || d.Number_of_Virtual_Meetings == virtualMeetings)
   );
 }
 
@@ -141,6 +154,7 @@ function renderCircularBarChart(data) {
   Plotly.newPlot('chart', [trace], layout);
 }
 // *** END OF SUSAN ***
+
 
 
 
@@ -719,9 +733,69 @@ function drawSunburstChart(data) {
   Plotly.newPlot('sunburst-chart', [trace], layout);
 }
 // *** END OF YILING ***
+function drawLineChartByAgeAndGender(data) {
+    // Function to categorize age into ranges
+    function categorizeAge(age) {
+      if (age <= 25) return '18-25';
+      if (age > 25 && age <= 35) return '26-35';
+      if (age > 35 && age <= 45) return '36-45';
+      if (age > 45 && age <= 55) return '46-55';
+      if (age > 55) return '56+';
+      return null;
+    }
+  
+    // Group the data by Age Range and Gender
+    const groupedData = d3.group(data, d => categorizeAge(d.Age), d => d.Gender);
+  
+    // Define age ranges and prepare traces for each gender
+    const ageRanges = ['18-25', '26-35', '36-45', '46-55', '56+'];
+    const genders = ['Female', 'Male', 'Non-binary', 'Prefer not to say'];
+  
+    const genderTraces = {};
+  
+    // Initialize arrays for each gender
+    genders.forEach(gender => {
+      genderTraces[gender] = {
+        x: ageRanges,
+        y: Array(ageRanges.length).fill(0),
+        name: gender,
+        mode: 'lines+markers',
+        type: 'scatter',
+        marker: { size: 8 },
+        line: { width: 2 }
+      };
+    });
+  
+    // Populate the y-values (average years of experience)
+    ageRanges.forEach((ageRange, i) => {
+      genders.forEach(gender => {
+        const ageGenderGroup = groupedData.get(ageRange)?.get(gender) || [];
+  
+        if (ageGenderGroup.length > 0) {
+          const totalYearsExperience = ageGenderGroup.reduce((sum, d) => sum + parseFloat(d.Years_of_Experience || 0), 0);
+          const averageYearsExperience = totalYearsExperience / ageGenderGroup.length;
+  
+          genderTraces[gender].y[i] = averageYearsExperience;
+        }
+      });
+    });
+  
+    // Convert traces object to an array of traces
+    const traces = Object.values(genderTraces);
+  
+    // Layout configuration for Plotly
+    const layout = {
+      title: 'Average Years of Experience by Age Range and Gender',
+      xaxis: { title: 'Age Range' },
+      yaxis: { title: 'Average Years of Experience' },
+      grid: true
+    };
+  
+    // Plot the line chart
+    Plotly.newPlot('line-chart', traces, layout);
+  }
 
-
-// *** LOGAN'S CHARTS ***
+ // *** LOGAN'S CHARTS ***
 // MENTAL HEALTH RESOURCES AND PHYSICAL ACTIVITY BY MENTAL HEALTH CONDITION
 function mentalHealthResourcesChart(data) {
   // Process data for the chart
@@ -807,16 +881,26 @@ function productivityChangeChart(data) {
 
 // BUBBLE CHART
 
-// *** Populate the dropdown filters dynamically based on the dataset ***
+// Populate the dropdown filters dynamically based on the dataset
 function populateFilters(data) {
   populateDropdown('stressLevelFilter', [...new Set(data.map(d => d.Stress_Level))]);
   populateDropdown('hoursWorkedFilter', [...new Set(data.map(d => d.Hours_Worked_Per_Week))]);
-  populateDropdown('virtualMeetingsFilter', [...new Set(data.map(d => d.Number_of_Virtual_Meetings))]);
+  populateDropdown('virtualMeetingsFilter', [...new Set(data.map(d => d.Number_of_Virtual_Meetings))], true); // Sorting virtual meetings
 }
 
-// Helper to populate a dropdown by its ID
-function populateDropdown(elementId, options) {
+// Helper to populate a dropdown by its ID, with sorting applied
+function populateDropdown(elementId, options, sortVirtualMeetings = false) {
   const dropdown = document.getElementById(elementId);
+
+  // Sort "None" first and numbers ascending for virtual meetings filter
+  if (sortVirtualMeetings) {
+    options.sort((a, b) => {
+      if (a === 'None') return -1;  // Move 'None' to the top
+      if (b === 'None') return 1;
+      return parseFloat(a) - parseFloat(b);  // Sort numbers in ascending order
+    });
+  }
+
   dropdown.innerHTML = '<option value="">All</option>';  // Add an "All" option
   options.forEach(option => {
     const opt = document.createElement('option');
@@ -839,6 +923,7 @@ function filterData(data) {
   );
 }
 
+// Stress Levels Bubble Chart
 function stressLevelsBubbleChart(data) {
   // Mapping stress levels to numerical values
   const stressLevelsMap = {
