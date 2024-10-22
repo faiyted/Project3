@@ -15,7 +15,7 @@ d3.json('/mongo_data')
       Stress_Level: d.Stress_Level || 'None',
       Mental_Health_Condition: d.Mental_Health_Condition || 'None',
       _id: d._id || 'None',
-      Sleep_Quality: isNaN(parseInt(d.Sleep_Quality, 10)) ? 'None' : parseInt(d.Sleep_Quality, 10),
+      Sleep_Quality: parseInt(d.Sleep_Quality, 10) || 'None',
       Company_Support_for_Remote_Work: d.Company_Support_for_Remote_Work || 'None',
       Work_Life_Balance_Rating: d.Work_Life_Balance_Rating || 'None',
       Social_Isolation_Rating: d.Social_Isolation_Rating || 'None',
@@ -27,21 +27,20 @@ d3.json('/mongo_data')
       Value: d.Value || 1  // Replace `Value` with the appropriate field if needed
     }));
 
+
     console.log("MongoDB Data:", data);
-    
-    // Populate dropdown filters and render initial charts
     populateFilters(data);  // Populate the dropdown filters
-    renderCircularBarChart(data);  // Initial circular chart rendering (Polar chart)
+    renderCircularBarChart(data);  // Initial circular chart rendering
     renderBarChart(data);  // Initial bar chart rendering
-    hoursMental(data);  // Scatter chart of Hours Worked vs Mental Health
-    renderStackedBarChartForPhysicalActivity(data);  // Stacked bar chart of Physical Activity vs Sleep Quality
-    mentalPhy(data);  // Stacked bar chart for Physical Activity vs Mental Health Condition
-    drawJobBarChart(data, 'Industry', 'Job_Role');  // Job Role distribution by Industry
-    drawBarChart(data);  // Gender distribution based on years of experience
-    drawSunburstChart(data);  // Sunburst chart for work-life balance and hours worked
-    mentalHealthResourcesChart(data);  // Mental health resources vs Physical Activity chart
-    productivityChangeChart(data);  // Productivity change by Work Location
-    stressLevelsChart(data);  // 3D Scatter plot of Stress Levels by Hours Worked and Virtual Meetings
+    hoursMental(data);
+    renderStackedBarChartForPhysicalActivity(data);
+    mentalPhy(data);
+    drawJobBarChart(data, 'Industry', 'Job_Role');
+    drawBarChart(data);
+    drawSunburstChart(data);
+    mentalHealthResourcesChart(data);
+    productivityChangeChart(data);
+    stressLevelsBubbleChart(data);
 
     // Add event listeners to each dropdown
     document.querySelectorAll('select').forEach(select => {
@@ -49,22 +48,21 @@ d3.json('/mongo_data')
         const filteredData = filterData(data);  // Filter data based on the selections
         renderCircularBarChart(filteredData);  // Update the circular chart with filtered data
         renderBarChart(filteredData);  // Update the bar chart with filtered data
-        hoursMental(filteredData);  // Update scatter chart with filtered data
-        renderStackedBarChartForPhysicalActivity(filteredData);  // Update Physical Activity vs Sleep chart
-        mentalPhy(filteredData);  // Update Physical Activity vs Mental Health chart
-        drawJobBarChart(filteredData, 'Industry', 'Job_Role');  // Update Job Role by Industry chart
-        drawBarChart(filteredData);  // Update gender distribution chart
-        drawSunburstChart(filteredData);  // Update Sunburst chart
-        mentalHealthResourcesChart(filteredData);  // Update Mental Health Resources chart
-        productivityChangeChart(filteredData);  // Update Productivity change chart
-        stressLevelsChart(filteredData);  // Update 3D Scatter plot of Stress Levels
+        hoursMental(filteredData);
+        renderStackedBarChartForPhysicalActivity(filteredData);
+        mentalPhy(filteredData);
+        drawJobBarChart(filteredData, 'Industry', 'Job_Role');
+        drawBarChart(filteredData);
+        drawSunburstChart(filteredData);
+        mentalHealthResourcesChart(filteredData);
+        productivityChangeChart(filteredData);
+        stressLevelsBubbleChart(filteredData);
       });
     });
   })
   .catch(error => {
     console.error("Error fetching MongoDB data:", error);
   });
-
 
 // *** SUSAN ***
 // Populate the dropdown filters dynamically based on the dataset
@@ -668,6 +666,7 @@ function drawBarChart(data) {
   Plotly.newPlot('bar-chart', [femaleTrace, maleTrace, nonBinaryTrace, preferNotToSayTrace], layout);
 }
 
+
 // Function to draw the Sunburst chart
 function drawSunburstChart(data) {
   let labels = [];
@@ -713,111 +712,174 @@ function drawSunburstChart(data) {
 
   const layout = {
     title: 'Sunburst Chart: Experience, Hours Worked, and Work-Life Balance',
-    width: 600,
-    height: 600
+    width: 1000,
+    height: 1000
   };
 
   Plotly.newPlot('sunburst-chart', [trace], layout);
 }
-// *** END OF YILANG ***
+// *** END OF YILING ***
 
 
-// ** BEGINNING OF LOGANS **
+// *** LOGAN'S CHARTS ***
 // MENTAL HEALTH RESOURCES AND PHYSICAL ACTIVITY BY MENTAL HEALTH CONDITION
 function mentalHealthResourcesChart(data) {
-    // Process data for the chart
-    const conditions = [...new Set(data.map(d => d.Mental_Health_Condition))];
-    const physicalActivities = [...new Set(data.map(d => d.Physical_Activity))];
-    const accessLevels = [...new Set(data.map(d => d.Access_to_Mental_Health_Resources))];
-    
-    const chartData = [];
+  // Process data for the chart
+  const conditions = [...new Set(data.map(d => d.Mental_Health_Condition))]; // Unique mental health conditions
+  const physicalActivities = [...new Set(data.map(d => d.Physical_Activity))]; // Unique physical activities
+  const accessLevels = [...new Set(data.map(d => d.Access_to_Mental_Health_Resources))]; // Unique access levels
+  
+  const chartData = [];
 
-    // Prepare the stacked data
-    conditions.forEach(condition => {
-        physicalActivities.forEach(activity => {
-            accessLevels.forEach(access => {
-                const filteredData = data.filter(d =>
-                    d.Mental_Health_Condition === condition &&
-                    d.Physical_Activity === activity &&
-                    d.Access_to_Mental_Health_Resources === access
-                );
-                chartData.push({
-                    x: condition,
-                    y: filteredData.length,
-                    name: `${access}, ${activity}`,
-                    type: 'bar',
-                });
-            });
-        });
-    });
+  // Prepare the data for grouped bar chart
+  physicalActivities.forEach(activity => {
+      accessLevels.forEach(access => {
+          const yData = conditions.map(condition => {
+              // Filter data for each condition, activity, and access combination
+              const filteredData = data.filter(d =>
+                  d.Mental_Health_Condition === condition &&
+                  d.Physical_Activity === activity &&
+                  d.Access_to_Mental_Health_Resources === access
+              );
+              return filteredData.length; // Count the number of matching records
+          });
 
-    const layout = {
-        title: 'Access to Mental Health Resources and Physical Activity by Mental Health Condition',
-        barmode: 'stack',
-        xaxis: { title: 'Mental Health Condition' },
-        yaxis: { title: 'Percentage (%)' }
-    };
+          // Modify the access level and activity label in the legend
+          const accessLabel = access === 'Yes' ? 'Yes Access' : 'No Access';
+          const activityLabel = activity === 'No Activity' ? 'No Activity' : activity === 'Weekly' ? 'Weekly Activity' : 'Daily Activity';
 
-    Plotly.newPlot('mental-health-chart', chartData, layout);
+          // Push data for each activity and access level combination
+          chartData.push({
+              x: conditions, // Mental health conditions as x-axis
+              y: yData, // Y-axis data (count of records)
+              name: `${accessLabel}, ${activityLabel}`, // Name to appear in the legend
+              type: 'bar', // Bar chart
+          });
+      });
+  });
+
+  const layout = {
+      title: 'Access to Mental Health Resources and Physical Activity by Mental Health Condition',
+      barmode: 'group', // Grouped bars
+      xaxis: { title: 'Mental Health Condition' }, // X-axis title
+      yaxis: { title: 'Count of Employees' }, // Y-axis title
+      showlegend: true, // Display legend
+  };
+
+  // Render the chart using Plotly
+  Plotly.newPlot('mental-health-chart', chartData, layout);
 }
 
 // PRODUCTIVITY CHANGE BY WORK LOCATION
 function productivityChangeChart(data) {
-    const workLocations = ['Remote', 'Hybrid', 'Onsite'];
-    const changeTypes = ['Increase', 'Decrease', 'No Change'];
-    const colors = ['#69BE28', '#FF4500', '#4682B4'];
-    
-    const chartData = [];
+  const workLocations = ['Remote', 'Hybrid', 'Onsite'];
+  const changeTypes = ['Increase', 'Decrease', 'No Change'];
+  const colors = ['#69BE28', '#FF4500', '#4682B4'];
 
-    workLocations.forEach(location => {
-        changeTypes.forEach((change, i) => {
-            const count = data.filter(d => d.Work_Location === location && d.Productivity_Change === change).length;
-            chartData.push({
-                x: location,
-                y: count,
-                name: change,
-                type: 'bar',
-                marker: { color: colors[i] },
-            });
-        });
-    });
-
-    const layout = {
-        title: 'Productivity Change by Work Location (With Counts and Percentages)',
-        barmode: 'stack',
-        xaxis: { title: 'Work Location' },
-        yaxis: { title: 'Number of Employees' },
+  const traces = changeTypes.map((change, i) => {
+    return {
+      x: workLocations,
+      y: workLocations.map(location => {
+        return data.filter(d => d.Work_Location === location && d.Productivity_Change === change).length;
+      }),
+      name: change,
+      type: 'bar',
+      marker: { color: colors[i] },
+      text: workLocations.map(location => {
+        const count = data.filter(d => d.Work_Location === location && d.Productivity_Change === change).length;
+        const total = data.filter(d => d.Work_Location === location).length;
+        const percentage = (count / total) * 100;
+        return `${count} (${percentage.toFixed(1)}%)`;
+      }),
+      textposition: 'auto' // Display text on top of bars
     };
+  });
 
-    Plotly.newPlot('productivity-change-chart', chartData, layout);
+  const layout = {
+    title: 'Productivity Change by Work Location (With Counts and Percentages)',
+    barmode: 'stack',
+    xaxis: { title: 'Work Location' },
+    yaxis: { title: 'Number of Employees' },
+  };
+
+  Plotly.newPlot('productivity-change-chart', traces, layout);
 }
 
-// STRESS LEVELS BY HOURS WORKED AND VIRTUAL MEETINGS
-function stressLevelsChart(data) {
-    const chartData = {
-        x: data.map(d => d.Hours_Worked_Per_Week),
-        y: data.map(d => d.Number_of_Virtual_Meetings),
-        z: data.map(d => d.Stress_Level),
-        mode: 'markers',
-        marker: {
-            size: 12,
-            color: data.map(d => d.Stress_Level),
-            colorscale: 'Viridis',
-            showscale: true,
-        },
-        type: 'scatter3d'
-    };
+// BUBBLE CHART
 
-    const layout = {
-        title: '3D Scatter Plot of Stress Levels by Hours Worked and Virtual Meetings',
-        scene: {
-            xaxis: { title: 'Hours Worked' },
-            yaxis: { title: 'Virtual Meetings' },
-            zaxis: { title: 'Stress Level' }
-        }
-    };
-
-    Plotly.newPlot('stress-levels-chart', [chartData], layout);
+// *** Populate the dropdown filters dynamically based on the dataset ***
+function populateFilters(data) {
+  populateDropdown('stressLevelFilter', [...new Set(data.map(d => d.Stress_Level))]);
+  populateDropdown('hoursWorkedFilter', [...new Set(data.map(d => d.Hours_Worked_Per_Week))]);
+  populateDropdown('virtualMeetingsFilter', [...new Set(data.map(d => d.Number_of_Virtual_Meetings))]);
 }
 
-// END OF LOGANS  
+// Helper to populate a dropdown by its ID
+function populateDropdown(elementId, options) {
+  const dropdown = document.getElementById(elementId);
+  dropdown.innerHTML = '<option value="">All</option>';  // Add an "All" option
+  options.forEach(option => {
+    const opt = document.createElement('option');
+    opt.value = option;
+    opt.textContent = option;
+    dropdown.appendChild(opt);
+  });
+}
+
+// Filter the dataset based on the dropdown selections
+function filterData(data) {
+  const stressLevel = document.getElementById('stressLevelFilter').value;
+  const hoursWorked = document.getElementById('hoursWorkedFilter').value;
+  const virtualMeetings = document.getElementById('virtualMeetingsFilter').value;
+
+  return data.filter(d =>
+    (stressLevel === '' || d.Stress_Level === stressLevel) &&
+    (hoursWorked === '' || d.Hours_Worked_Per_Week == hoursWorked) &&
+    (virtualMeetings === '' || d.Number_of_Virtual_Meetings == virtualMeetings)
+  );
+}
+
+function stressLevelsBubbleChart(data) {
+  // Mapping stress levels to numerical values
+  const stressLevelsMap = {
+      'Low': 5,       // Low stress
+      'Medium': 10,   // Medium stress
+      'High': 15      // High stress
+  };
+
+  // Process data for the chart
+  const hoursWorked = data.map(d => d.Hours_Worked_Per_Week);
+  const virtualMeetings = data.map(d => d.Number_of_Virtual_Meetings);
+  const stressLevels = data.map(d => stressLevelsMap[d.Stress_Level]);
+
+  // Create text labels that combine Hours Worked, Virtual Meetings, and Stress Levels
+  const bubbleText = data.map((d, i) => 
+    `Hours Worked: ${hoursWorked[i]}<br>Virtual Meetings: ${virtualMeetings[i]}<br>Stress Level: ${stressLevels[i]}`
+  );
+
+  // Calculate sizes for bubbles (relative to stress level)
+  const bubbleSizes = stressLevels.map(s => s * 10);
+
+  const trace = {
+      x: hoursWorked,
+      y: virtualMeetings,
+      text: bubbleText,  // Updated text to include hours worked, virtual meetings, and stress levels
+      mode: 'markers',
+      marker: {
+          size: bubbleSizes,
+          color: stressLevels,
+          colorscale: 'Viridis',
+          showscale: true
+      },
+      hovertemplate: '%{text}<extra></extra>',  // Ensure hover text shows all the info
+  };
+
+  const layout = {
+      title: 'Bubble Chart of Stress Levels by Hours Worked and Virtual Meetings',
+      xaxis: { title: 'Hours Worked' },
+      yaxis: { title: 'Virtual Meetings' },
+      showlegend: false,
+  };
+
+  Plotly.newPlot('stress-levels-bubble-chart', [trace], layout);
+}
