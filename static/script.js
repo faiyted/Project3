@@ -656,6 +656,7 @@ function drawBarChart(data) {
   Plotly.newPlot('bar-chart', [femaleTrace, maleTrace, nonBinaryTrace, preferNotToSayTrace], layout);
 }
 
+
 // Function to draw the Sunburst chart
 function drawSunburstChart(data) {
   let labels = [];
