@@ -1,4 +1,3 @@
-// Original code continues...
 // Fetch and process the MongoDB data
 d3.json('/mongo_data')
   .then(mongoData => {
@@ -16,7 +15,7 @@ d3.json('/mongo_data')
       Stress_Level: d.Stress_Level || 'None',
       Mental_Health_Condition: d.Mental_Health_Condition || 'None',
       _id: d._id || 'None',
-      Sleep_Quality: parseInt(d.Sleep_Quality, 10) || 'None',
+      Sleep_Quality: isNaN(parseInt(d.Sleep_Quality, 10)) ? 'None' : parseInt(d.Sleep_Quality, 10),
       Company_Support_for_Remote_Work: d.Company_Support_for_Remote_Work || 'None',
       Work_Life_Balance_Rating: d.Work_Life_Balance_Rating || 'None',
       Social_Isolation_Rating: d.Social_Isolation_Rating || 'None',
@@ -29,11 +28,20 @@ d3.json('/mongo_data')
     }));
 
     console.log("MongoDB Data:", data);
+    
+    // Populate dropdown filters and render initial charts
     populateFilters(data);  // Populate the dropdown filters
-    renderCircularBarChart(data);  // Initial circular chart rendering
+    renderCircularBarChart(data);  // Initial circular chart rendering (Polar chart)
     renderBarChart(data);  // Initial bar chart rendering
-    renderStackedBarChartForPhysicalActivity(data);
-    mentalPhy(data);
+    hoursMental(data);  // Scatter chart of Hours Worked vs Mental Health
+    renderStackedBarChartForPhysicalActivity(data);  // Stacked bar chart of Physical Activity vs Sleep Quality
+    mentalPhy(data);  // Stacked bar chart for Physical Activity vs Mental Health Condition
+    drawJobBarChart(data, 'Industry', 'Job_Role');  // Job Role distribution by Industry
+    drawBarChart(data);  // Gender distribution based on years of experience
+    drawSunburstChart(data);  // Sunburst chart for work-life balance and hours worked
+    mentalHealthResourcesChart(data);  // Mental health resources vs Physical Activity chart
+    productivityChangeChart(data);  // Productivity change by Work Location
+    stressLevelsChart(data);  // 3D Scatter plot of Stress Levels by Hours Worked and Virtual Meetings
 
     // Add event listeners to each dropdown
     document.querySelectorAll('select').forEach(select => {
@@ -41,6 +49,15 @@ d3.json('/mongo_data')
         const filteredData = filterData(data);  // Filter data based on the selections
         renderCircularBarChart(filteredData);  // Update the circular chart with filtered data
         renderBarChart(filteredData);  // Update the bar chart with filtered data
+        hoursMental(filteredData);  // Update scatter chart with filtered data
+        renderStackedBarChartForPhysicalActivity(filteredData);  // Update Physical Activity vs Sleep chart
+        mentalPhy(filteredData);  // Update Physical Activity vs Mental Health chart
+        drawJobBarChart(filteredData, 'Industry', 'Job_Role');  // Update Job Role by Industry chart
+        drawBarChart(filteredData);  // Update gender distribution chart
+        drawSunburstChart(filteredData);  // Update Sunburst chart
+        mentalHealthResourcesChart(filteredData);  // Update Mental Health Resources chart
+        productivityChangeChart(filteredData);  // Update Productivity change chart
+        stressLevelsChart(filteredData);  // Update 3D Scatter plot of Stress Levels
       });
     });
   })
@@ -49,7 +66,7 @@ d3.json('/mongo_data')
   });
 
 
-// ALL OF SUSAN'S GRAPH
+// *** SUSAN ***
 // Populate the dropdown filters dynamically based on the dataset
 function populateFilters(data) {
   populateDropdown('regionFilter', [...new Set(data.map(d => d.Region))]);
@@ -125,8 +142,587 @@ function renderCircularBarChart(data) {
 
   Plotly.newPlot('chart', [trace], layout);
 }
+// *** END OF SUSAN ***
 
-// BEGINNING OF LOGANS
+
+
+// *** BEGINNING OF LAURA *** 
+// Function to render the bar chart with Seahawks colors, percentages, capped y-axis at 35%, and custom labels
+function renderBarChart(data) {
+  // Prepare data for the bar chart
+  const locations = [...new Set(data.map(d => d.Work_Location))];  // Get unique work locations
+
+  // Map satisfaction levels to custom labels
+  const satisfactionLabels = {
+    'None': 'Unsatisfied',
+    '1': 'Neutral',
+    '2': 'Satisfied'
+  };
+
+  const satisfactionLevels = [...new Set(data.map(d => d.Satisfaction_with_Remote_Work))];  // Get unique satisfaction levels
+
+  // Calculate total counts for each location
+  const totalByLocation = locations.map(location => 
+    data.filter(d => d.Work_Location === location).length
+  );
+
+  // Define Seahawks colors: Blue (#002244), Green (#69BE28), Grey (#A5ACAF)
+  const seahawksColors = ['#002244', '#69BE28', '#A5ACAF'];
+
+  const traceData = satisfactionLevels.map((satisfaction, index) => {
+    return {
+      x: locations,
+      y: locations.map((location, i) => {
+        const count = data.filter(d => d.Work_Location === location && d.Satisfaction_with_Remote_Work === satisfaction).length;
+        const percentage = (count / totalByLocation[i]) * 100;
+        return percentage;  // Use raw percentage for y values
+      }),
+      name: satisfactionLabels[satisfaction] || satisfaction,  // Use custom labels or fallback to the original value
+      type: 'bar',
+      marker: {
+        color: seahawksColors[index % seahawksColors.length]  // Use Seahawks colors
+      },
+      text: locations.map((location, i) => {
+        const count = data.filter(d => d.Work_Location === location && d.Satisfaction_with_Remote_Work === satisfaction).length;
+        const percentage = (count / totalByLocation[i]) * 100;
+        return `${percentage.toFixed(1)}%`;  // Display percentage at the top of each bar
+      }),
+      textposition: 'auto',  // Display percentage on top of each bar
+      hoverinfo: 'none'  // Turn off hover effect
+    };
+  });
+
+  const layout = {
+    title: {
+      text: 'Satisfaction with Remote Work by Work Location',
+      font: {
+        family: 'Arial, sans-serif',  // You can specify the font family if needed
+        size: 18,  // Set the font size
+        weight: 'bold',  // Make the text bold
+      }
+    },
+    barmode: 'group',  // Group bars by location
+    xaxis: {
+      title: 'Work Location',
+      tickangle: -45
+    },
+    yaxis: {
+      title: 'Percentage (%)',
+      range: [0, 40],  // Cap the y-axis maximum at 35%
+    },
+    margin: { t: 40, l: 40, r: 20, b: 80 },
+    showlegend: true
+  };
+  
+
+  // Render the bar chart
+  Plotly.newPlot('barChart', traceData, layout);
+}
+
+
+// Function to create a scatter chart with dots for Hours_Worked_Per_Week vs Mental_Health_Condition
+function hoursMental(data) {
+  // Define the categories for Mental Health Conditions with Seahawks colors
+  const mentalHealthLabels = {
+    'Anxiety': 'Anxiety',
+    'Depression': 'Depression',
+    'Burnout': 'Burnout',
+    'None': 'None'
+  };
+  
+  const seahawksColors = {
+    'Anxiety': '#002244',  // Seahawks Blue
+    'Depression': '#69BE28',  // Seahawks Green
+    'Burnout': '#A5ACAF',  // Seahawks Grey
+    'None': '#C0C0C0'  // Light Grey for None
+  };
+
+  // Group data by 'Hours_Worked_Per_Week'
+  const groupedData = d3.group(data, d => d.Hours_Worked_Per_Week);
+  console.log("Grouped Data by Hours Worked Per Week:", groupedData);
+
+  // Get the unique categories for Hours Worked Per Week
+  const hoursCategories = Array.from(groupedData.keys());
+  console.log("Hours Worked Per Week Categories:", hoursCategories);
+
+  // Initialize arrays to hold the counts for each mental health condition
+  let anxietyCounts = [];
+  let depressionCounts = [];
+  let burnoutCounts = [];
+  let noneCounts = [];
+
+  // Iterate over each hours category and count the mental health conditions
+  hoursCategories.forEach(hours => {
+    const categoryData = groupedData.get(hours) || [];
+
+    let anxietyCount = 0;
+    let depressionCount = 0;
+    let burnoutCount = 0;
+    let noneCount = 0;
+
+    // Count the number of each mental health condition within the hours category
+    categoryData.forEach(d => {
+      const mentalHealthCondition = d.Mental_Health_Condition;
+
+      if (mentalHealthCondition === 'Anxiety') {
+        anxietyCount++;
+      } else if (mentalHealthCondition === 'Depression') {
+        depressionCount++;
+      } else if (mentalHealthCondition === 'Burnout') {
+        burnoutCount++;
+      } else if (mentalHealthCondition === 'None') {
+        noneCount++;
+      }
+    });
+
+    console.log(`Hours: ${hours} - Anxiety: ${anxietyCount}, Depression: ${depressionCount}, Burnout: ${burnoutCount}, None: ${noneCount}`);
+    
+    anxietyCounts.push(anxietyCount);
+    depressionCounts.push(depressionCount);
+    burnoutCounts.push(burnoutCount);
+    noneCounts.push(noneCount);
+  });
+
+  console.log("Anxiety Counts:", anxietyCounts);
+  console.log("Depression Counts:", depressionCounts);
+  console.log("Burnout Counts:", burnoutCounts);
+  console.log("None Counts:", noneCounts);
+
+  // Prepare the traces for the scatter chart with dots
+  const traceAnxiety = {
+    x: hoursCategories,
+    y: anxietyCounts,
+    name: mentalHealthLabels['Anxiety'],
+    type: 'scatter',
+    mode: 'markers',
+    marker: { color: seahawksColors['Anxiety'], size: 10 }
+  };
+
+  const traceDepression = {
+    x: hoursCategories,
+    y: depressionCounts,
+    name: mentalHealthLabels['Depression'],
+    type: 'scatter',
+    mode: 'markers',
+    marker: { color: seahawksColors['Depression'], size: 10 }
+  };
+
+  const traceBurnout = {
+    x: hoursCategories,
+    y: burnoutCounts,
+    name: mentalHealthLabels['Burnout'],
+    type: 'scatter',
+    mode: 'markers',
+    marker: { color: seahawksColors['Burnout'], size: 10 }
+  };
+
+  const traceNone = {
+    x: hoursCategories,
+    y: noneCounts,
+    name: mentalHealthLabels['None'],
+    type: 'scatter',
+    mode: 'markers',
+    marker: { color: seahawksColors['None'], size: 10 }
+  };
+
+  // Combine the traces
+  const traces = [traceAnxiety, traceDepression, traceBurnout, traceNone];
+
+  // Define the layout for the scatter chart with dots
+  const layout = {
+    title: 'Hours Worked Per Week vs Mental Health Condition',
+    xaxis: { title: 'Hours Worked Per Week' },
+    yaxis: { title: 'Number of People' },
+    showlegend: true
+  };
+
+  // Render the chart using Plotly
+  Plotly.newPlot('hours-mental-chart', traces, layout);
+}
+
+// *** END OF LAURA *** 
+
+
+
+// *** BEGINNING OF XIAN ***
+function renderStackedBarChartForPhysicalActivity(data) {
+  // Define the mapping for Sleep_Quality
+  const sleepQualityLabels = {
+    0: 'Poor',
+    1: 'Average',
+    2: 'Good'
+  };
+
+  const groupedData = d3.group(data, d => d.Physical_Activity);
+  console.log("Grouped Data by Physical Activity:", groupedData);
+
+  // Get the unique categories for Physical Activity
+  const physicalActivityLevels = Array.from(groupedData.keys());
+  console.log("Physical Activity Levels:", physicalActivityLevels);
+
+  // Initialize arrays to hold the counts for each sleep quality level
+  let poorCounts = [];
+  let averageCounts = [];
+  let goodCounts = [];
+
+  // Iterate over each physical activity level and count the sleep quality levels
+  physicalActivityLevels.forEach(activityLevel => {
+    const categoryData = groupedData.get(activityLevel) || [];
+    
+    let poorCount = 0;
+    let averageCount = 0;
+    let goodCount = 0;
+
+    // Count the number of each sleep quality level within the physical activity category
+    categoryData.forEach(d => {
+      const sleepQuality = parseInt(d.Sleep_Quality, 10);  // Ensure Sleep_Quality is an integer
+      if (d.Sleep_Quality === '0' || d.Sleep_Quality === 'None') {
+        poorCount++;
+      } else if (sleepQuality === 1) {
+        averageCount++;
+      } else if (sleepQuality === 2) {
+        goodCount++;
+      }
+    });
+
+    console.log(`Activity Level: ${activityLevel} - Poor: ${poorCount}, Average: ${averageCount}, Good: ${goodCount}`);
+    
+    poorCounts.push(poorCount);
+    averageCounts.push(averageCount);
+    goodCounts.push(goodCount);
+  });
+
+  console.log("Poor Counts:", poorCounts);
+  console.log("Average Counts:", averageCounts);
+  console.log("Good Counts:", goodCounts);
+
+  // Prepare the traces for the stacked bar chart
+  const trace1 = {
+    x: physicalActivityLevels,
+    y: poorCounts,
+    name: sleepQualityLabels[0],
+    type: 'bar'
+  };
+
+  const trace2 = {
+    x: physicalActivityLevels,
+    y: averageCounts,
+    name: sleepQualityLabels[1],
+    type: 'bar'
+  };
+
+  const trace3 = {
+    x: physicalActivityLevels,
+    y: goodCounts,
+    name: sleepQualityLabels[2],
+    type: 'bar'
+  };
+
+  // Combine the traces
+  const traces = [trace1, trace2, trace3];
+
+  // Define the layout for the stacked bar chart
+  const layout = {
+    title: 'Physical Activity vs Sleep Quality',
+    barmode: 'stack',
+    xaxis: { title: 'Physical Activity' },
+    yaxis: { title: 'Number of People' }
+  };
+
+  // Render the chart using Plotly
+  Plotly.newPlot('stacked-bar-chart', traces, layout);
+}
+
+// BEGINNING OF NEW CODE: Function to create Physical Activity vs Mental Health Condition chart
+function mentalPhy(data) {
+  // Group data by 'Physical_Activity'
+  const groupedData = d3.group(data, d => d.Physical_Activity);
+  console.log("Grouped Data by Physical Activity:", groupedData);
+
+  // Get the unique categories for Physical Activity (e.g., Sedentary, Light, Moderate, etc.)
+  const physicalActivityLevels = Array.from(groupedData.keys());
+  console.log("Physical Activity Levels:", physicalActivityLevels);
+
+  // Initialize arrays to hold the counts for each mental health condition
+  let anxietyCounts = [];
+  let depressionCounts = [];
+  let burnoutCounts = [];
+  let noneCounts = [];
+
+  // Iterate over each physical activity level and count the mental health conditions
+  physicalActivityLevels.forEach(activityLevel => {
+    const categoryData = groupedData.get(activityLevel) || [];
+
+    let anxietyCount = 0;
+    let depressionCount = 0;
+    let burnoutCount = 0;
+    let noneCount = 0;
+
+    // Count the number of each mental health condition within the physical activity category
+    categoryData.forEach(d => {
+      const mentalHealthCondition = d.Mental_Health_Condition;
+
+      if (mentalHealthCondition === 'Anxiety') {
+        anxietyCount++;
+      } else if (mentalHealthCondition === 'Depression') {
+        depressionCount++;
+      } else if (mentalHealthCondition === 'Burnout') {
+        burnoutCount++;
+      } else if (mentalHealthCondition === 'None') {
+        noneCount++;
+      }
+    });
+
+    console.log(`Activity Level: ${activityLevel} - Anxiety: ${anxietyCount}, Depression: ${depressionCount}, Burnout: ${burnoutCount}, None: ${noneCount}`);
+    
+    anxietyCounts.push(anxietyCount);
+    depressionCounts.push(depressionCount);
+    burnoutCounts.push(burnoutCount);
+    noneCounts.push(noneCount);
+  });
+
+  console.log("Anxiety Counts:", anxietyCounts);
+  console.log("Depression Counts:", depressionCounts);
+  console.log("Burnout Counts:", burnoutCounts);
+  console.log("None Counts:", noneCounts);
+
+  // Prepare the traces for the stacked bar chart
+  const traceAnxiety = {
+    x: physicalActivityLevels,
+    y: anxietyCounts,
+    name: 'Anxiety',
+    type: 'bar',
+    marker: { color: '#ff6f61' }  // Color for Anxiety
+  };
+
+  const traceDepression = {
+    x: physicalActivityLevels,
+    y: depressionCounts,
+    name: 'Depression',
+    type: 'bar',
+    marker: { color: '#6a5acd' }  // Color for Depression
+  };
+
+  const traceBurnout = {
+    x: physicalActivityLevels,
+    y: burnoutCounts,
+    name: 'Burnout',
+    type: 'bar',
+    marker: { color: '#ffa500' }  // Color for Burnout
+  };
+
+  const traceNone = {
+    x: physicalActivityLevels,
+    y: noneCounts,
+    name: 'None',
+    type: 'bar',
+    marker: { color: '#5cb85c' }  // Color for None
+  };
+
+  // Combine the traces
+  const traces = [traceAnxiety, traceDepression, traceBurnout, traceNone];
+
+  // Define the layout for the stacked bar chart
+  const layout = {
+    title: 'Physical Activity vs Mental Health Condition',
+    barmode: 'stack',
+    xaxis: { title: 'Physical Activity' },
+    yaxis: { title: 'Number of People' }
+  };
+
+  // Render the chart using Plotly
+  Plotly.newPlot('xian-second', traces, layout);
+}
+// *** END OF XIAN ***
+
+
+// *** BEGINNING OF YILANG ***
+// Function to draw the job bar chart based on two x-axis fields
+function drawJobBarChart(data, xAxisField1, xAxisField2) {
+  const colors = {
+    "HR": "#456d9f",
+    "Sales": "#c08552",
+    "Marketing": "#5c8c5b",
+    "Software Engineer": "#984948",
+    "Designer": "#8c75a7",
+    "Project Manager": "#75564b",
+    "Data Scientist": "#d89bb3"
+  };
+
+  const groupedData = d3.group(data, d => d[xAxisField1], d => d[xAxisField2]);
+
+  const industryCategories = Array.from(groupedData.keys());
+  const jobRoleCategories = Array.from(new Set(data.map(d => d[xAxisField2])));
+
+  let traces = [];
+
+  jobRoleCategories.forEach(jobRole => {
+    let counts = [];
+
+    industryCategories.forEach(industry => {
+      const industryData = groupedData.get(industry) || new Map();
+      const jobRoleData = industryData.get(jobRole) || [];
+      counts.push(jobRoleData.length);  // Count the number of entries for this combination
+    });
+
+    traces.push({
+      x: industryCategories,
+      y: counts,
+      name: jobRole,
+      type: 'bar',
+      marker: { color: colors[jobRole] || '#cccccc' }  // Assign color or default
+    });
+  });
+
+  const layout = {
+    title: `${xAxisField1.replace('_', ' ')} and ${xAxisField2.replace('_', ' ')} Distribution`,
+    barmode: 'stack',
+    xaxis: { title: xAxisField1.replace('_', ' ') },
+    yaxis: { title: 'Number of People' },
+  };
+
+  Plotly.newPlot('job-bar-chart', traces, layout);
+}
+
+// Function to draw the gender distribution bar chart based on years of experience
+function drawBarChart(data) {
+  const groupedData = d3.group(data, d => d.Years_of_Experience);
+
+  const yearsExperience = Array.from(groupedData.keys());
+
+  let femaleCounts = [];
+  let maleCounts = [];
+  let nonBinaryCounts = [];
+  let preferNotToSayCounts = [];
+
+  yearsExperience.forEach(year => {
+    const yearData = groupedData.get(year) || [];
+
+    let femaleCount = 0;
+    let maleCount = 0;
+    let nonBinaryCount = 0;
+    let preferNotToSayCount = 0;
+
+    yearData.forEach(d => {
+      switch (d.Gender) {
+        case 'Female':
+          femaleCount++;
+          break;
+        case 'Male':
+          maleCount++;
+          break;
+        case 'Non-binary':
+          nonBinaryCount++;
+          break;
+        case 'Prefer not to say':
+          preferNotToSayCount++;
+          break;
+      }
+    });
+
+    femaleCounts.push(femaleCount);
+    maleCounts.push(maleCount);
+    nonBinaryCounts.push(nonBinaryCount);
+    preferNotToSayCounts.push(preferNotToSayCount);
+  });
+
+  const femaleTrace = {
+    x: yearsExperience,
+    y: femaleCounts,
+    name: 'Female',
+    type: 'bar',
+    marker: { color: '#1f77b4' }
+  };
+
+  const maleTrace = {
+    x: yearsExperience,
+    y: maleCounts,
+    name: 'Male',
+    type: 'bar',
+    marker: { color: '#ff7f0e' }
+  };
+
+  const nonBinaryTrace = {
+    x: yearsExperience,
+    y: nonBinaryCounts,
+    name: 'Non-binary',
+    type: 'bar',
+    marker: { color: '#2ca02c' }
+  };
+
+  const preferNotToSayTrace = {
+    x: yearsExperience,
+    y: preferNotToSayCounts,
+    name: 'Prefer not to say',
+    type: 'bar',
+    marker: { color: '#d62728' }
+  };
+
+  const layout = {
+    title: 'Years of Experience vs Gender Distribution',
+    xaxis: { title: 'Years of Experience' },
+    yaxis: { title: 'Count of Employees' },
+    barmode: 'group'
+  };
+
+  Plotly.newPlot('bar-chart', [femaleTrace, maleTrace, nonBinaryTrace, preferNotToSayTrace], layout);
+}
+
+// Function to draw the Sunburst chart
+function drawSunburstChart(data) {
+  let labels = [];
+  let parents = [];
+  let values = [];
+
+  const experienceGroups = d3.group(data, d => d.Years_of_Experience);
+
+  experienceGroups.forEach((groupData, experience) => {
+    const experienceLabel = `${experience} Years of Experience`;
+    labels.push(experienceLabel);
+    parents.push('');
+    values.push(groupData.length);
+
+    const hoursGroups = d3.group(groupData, d => d.Hours_Worked_Per_Week);
+
+    hoursGroups.forEach((subGroupData, hours) => {
+      const hoursLabel = `${hours} Hours/Week (${experience} Years)`;
+      labels.push(hoursLabel);
+      parents.push(experienceLabel);
+      values.push(subGroupData.length);
+
+      const balanceGroups = d3.group(subGroupData, d => d.Work_Life_Balance_Rating);
+
+      balanceGroups.forEach((finalGroupData, balance) => {
+        const balanceLabel = `Work-Life Balance: ${balance} (${hours} Hours/${experience} Years)`;
+        labels.push(balanceLabel);
+        parents.push(hoursLabel);
+        values.push(finalGroupData.length);
+      });
+    });
+  });
+
+  const trace = {
+    type: 'sunburst',
+    labels: labels,
+    parents: parents,
+    values: values,
+    leaf: { opacity: 0.6 },
+    marker: { line: { width: 2 } },
+    branchvalues: 'total'
+  };
+
+  const layout = {
+    title: 'Sunburst Chart: Experience, Hours Worked, and Work-Life Balance',
+    width: 600,
+    height: 600
+  };
+
+  Plotly.newPlot('sunburst-chart', [trace], layout);
+}
+// *** END OF YILANG ***
+
+
+// ** BEGINNING OF LOGANS **
 // MENTAL HEALTH RESOURCES AND PHYSICAL ACTIVITY BY MENTAL HEALTH CONDITION
 function mentalHealthResourcesChart(data) {
     // Process data for the chart
@@ -224,5 +820,4 @@ function stressLevelsChart(data) {
     Plotly.newPlot('stress-levels-chart', [chartData], layout);
 }
 
-// END OF LOGANS
-
+// END OF LOGANS  
