@@ -701,8 +701,8 @@ function drawSunburstChart(data) {
 
   const layout = {
     title: 'Sunburst Chart: Experience, Hours Worked, and Work-Life Balance',
-    width: 600,
-    height: 600
+    width: 1000,
+    height: 1000
   };
 
   Plotly.newPlot('sunburst-chart', [trace], layout);
