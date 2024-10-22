@@ -1,0 +1,18 @@
+
+  /* Dropdown Styling */
+  select {
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
+    min-width: 200px;
+    transition: border-color 0.3s;
+  }
+  
+  select:focus {
+    outline: none;
+    border-color: #4a90e2;
+    background-color: #f9fbfd;
+  }
+  
