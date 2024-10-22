@@ -725,9 +725,9 @@ function drawSunburstChart(data) {
 // MENTAL HEALTH RESOURCES AND PHYSICAL ACTIVITY BY MENTAL HEALTH CONDITION
 function mentalHealthResourcesChart(data) {
   // Process data for the chart
-  const conditions = [...new Set(data.map(d => d.Mental_Health_Condition))]; // Unique mental health conditions
-  const physicalActivities = [...new Set(data.map(d => d.Physical_Activity))]; // Unique physical activities
-  const accessLevels = [...new Set(data.map(d => d.Access_to_Mental_Health_Resources))]; // Unique access levels
+  const conditions = [...new Set(data.map(d => d.Mental_Health_Condition))]; 
+  const physicalActivities = [...new Set(data.map(d => d.Physical_Activity))]; 
+  const accessLevels = [...new Set(data.map(d => d.Access_to_Mental_Health_Resources))]; 
   
   const chartData = [];
 
@@ -741,7 +741,7 @@ function mentalHealthResourcesChart(data) {
                   d.Physical_Activity === activity &&
                   d.Access_to_Mental_Health_Resources === access
               );
-              return filteredData.length; // Count the number of matching records
+              return filteredData.length; 
           });
 
           // Modify the access level and activity label in the legend
@@ -750,19 +750,19 @@ function mentalHealthResourcesChart(data) {
 
           // Push data for each activity and access level combination
           chartData.push({
-              x: conditions, // Mental health conditions as x-axis
-              y: yData, // Y-axis data (count of records)
-              name: `${accessLabel}, ${activityLabel}`, // Name to appear in the legend
-              type: 'bar', // Bar chart
+              x: conditions, 
+              y: yData, 
+              name: `${accessLabel}, ${activityLabel}`, 
+              type: 'bar', 
           });
       });
   });
 
   const layout = {
       title: 'Access to Mental Health Resources and Physical Activity by Mental Health Condition',
-      barmode: 'group', // Grouped bars
-      xaxis: { title: 'Mental Health Condition' }, // X-axis title
-      yaxis: { title: 'Count of Employees' }, // Y-axis title
+      barmode: 'group', 
+      xaxis: { title: 'Mental Health Condition' },
+      yaxis: { title: 'Count of Employees' }, 
       showlegend: true, // Display legend
   };
 
@@ -791,12 +791,12 @@ function productivityChangeChart(data) {
         const percentage = (count / total) * 100;
         return `${count} (${percentage.toFixed(1)}%)`;
       }),
-      textposition: 'auto' // Display text on top of bars
+      textposition: 'auto'
     };
   });
 
   const layout = {
-    title: 'Productivity Change by Work Location (With Counts and Percentages)',
+    title: 'Productivity Change by Work Location',
     barmode: 'stack',
     xaxis: { title: 'Work Location' },
     yaxis: { title: 'Number of Employees' },
@@ -852,18 +852,18 @@ function stressLevelsBubbleChart(data) {
   const virtualMeetings = data.map(d => d.Number_of_Virtual_Meetings);
   const stressLevels = data.map(d => stressLevelsMap[d.Stress_Level]);
 
-  // Create text labels that combine Hours Worked, Virtual Meetings, and Stress Levels
+  // Text labels that combine Hours Worked, Virtual Meetings, and Stress Levels
   const bubbleText = data.map((d, i) => 
     `Hours Worked: ${hoursWorked[i]}<br>Virtual Meetings: ${virtualMeetings[i]}<br>Stress Level: ${stressLevels[i]}`
   );
 
-  // Calculate sizes for bubbles (relative to stress level)
+  // Sizes for bubbles (relative to stress level)
   const bubbleSizes = stressLevels.map(s => s * 10);
 
   const trace = {
       x: hoursWorked,
       y: virtualMeetings,
-      text: bubbleText,  // Updated text to include hours worked, virtual meetings, and stress levels
+      text: bubbleText,  
       mode: 'markers',
       marker: {
           size: bubbleSizes,
@@ -871,7 +871,7 @@ function stressLevelsBubbleChart(data) {
           colorscale: 'Viridis',
           showscale: true
       },
-      hovertemplate: '%{text}<extra></extra>',  // Ensure hover text shows all the info
+      hovertemplate: '%{text}<extra></extra>',  
   };
 
   const layout = {
