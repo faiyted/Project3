@@ -37,6 +37,7 @@ d3.json('/mongo_data')
     drawJobBarChart(data, 'Industry', 'Job_Role');
     drawBarChart(data);
     drawSunburstChart(data);
+    drawLineChartByAgeAndGender(data);
     
 
 
@@ -709,89 +710,64 @@ function drawSunburstChart(data) {
   Plotly.newPlot('sunburst-chart', [trace], layout);
 }
 // *** END OF YILING ***
-d3.json('/mongo_data')
-  .then(mongoData => {
-    // Map MongoDB data to include all fields you might need, handling missing or None values
-    const data = mongoData.map(d => ({
-      Productivity_Change: d.Productivity_Change || 'None',
-      Industry: d.Industry || 'None',
-      Physical_Activity: d.Physical_Activity || 'None',
-      Access_to_Mental_Health_Resources: d.Access_to_Mental_Health_Resources || 'None',
-      Job_Role: d.Job_Role || 'None',
-      Hours_Worked_Per_Week: d.Hours_Worked_Per_Week || 'None',
-      Work_Location: d.Work_Location || 'None',
-      Employee_ID: d.Employee_ID || 'None',
-      Number_of_Virtual_Meetings: d.Number_of_Virtual_Meetings || 'None',
-      Stress_Level: d.Stress_Level || 'None',
-      Mental_Health_Condition: d.Mental_Health_Condition || 'None',
-      _id: d._id || 'None',
-      Sleep_Quality: parseInt(d.Sleep_Quality, 10) || 'None',
-      Company_Support_for_Remote_Work: d.Company_Support_for_Remote_Work || 'None',
-      Work_Life_Balance_Rating: d.Work_Life_Balance_Rating || 'None',
-      Social_Isolation_Rating: d.Social_Isolation_Rating || 'None',
-      Region: d.Region || 'None',
-      Gender: d.Gender || 'None',
-      Satisfaction_with_Remote_Work: d.Satisfaction_with_Remote_Work || 'None',
-      Age: d.Age || null, // Handle missing Age values
-      Years_of_Experience: parseFloat(d.Years_of_Experience) || 0, // Ensure numeric conversion
-      Value: d.Value || 1  // Replace `Value` with the appropriate field if needed
-    }));
-
-    // Process the data for plotting
+function drawLineChartByAgeAndGender(data) {
+    // Function to categorize age into ranges
+    function categorizeAge(age) {
+      if (age <= 25) return '18-25';
+      if (age > 25 && age <= 35) return '26-35';
+      if (age > 35 && age <= 45) return '36-45';
+      if (age > 45 && age <= 55) return '46-55';
+      if (age > 55) return '56+';
+      return null;
+    }
+  
+    // Group the data by Age Range and Gender
+    const groupedData = d3.group(data, d => categorizeAge(d.Age), d => d.Gender);
+  
+    // Define age ranges and prepare traces for each gender
     const ageRanges = ['18-25', '26-35', '36-45', '46-55', '56+'];
-    const dataByGender = {
-      Male: Array(ageRanges.length).fill(null),
-      Female: Array(ageRanges.length).fill(null),
-      "Non-binary": Array(ageRanges.length).fill(null),
-      "Prefer not to say": Array(ageRanges.length).fill(null)
-    };
-
-    data.forEach(d => {
-      if (d.Age !== null && !isNaN(d.Years_of_Experience)) {
-        const ageRange = categorizeAge(d.Age);
-        const gender = d.Gender || 'Unknown'; // Handle missing Gender values
-
-        if (ageRange && dataByGender[gender]) {
-          const index = ageRanges.indexOf(ageRange);
-          if (index > -1) {
-            dataByGender[gender][index] = d.Years_of_Experience;
-          }
-        }
-      }
-    });
-
-    console.log("Processed Data for Plotly:", dataByGender);
-
-    // Create traces for each gender
-    const traces = Object.keys(dataByGender).map(gender => {
-      return {
+    const genders = ['Female', 'Male', 'Non-binary', 'Prefer not to say'];
+  
+    const genderTraces = {};
+  
+    // Initialize arrays for each gender
+    genders.forEach(gender => {
+      genderTraces[gender] = {
         x: ageRanges,
-        y: dataByGender[gender],
+        y: Array(ageRanges.length).fill(0),
+        name: gender,
         mode: 'lines+markers',
-        name: gender
+        type: 'scatter',
+        marker: { size: 8 },
+        line: { width: 2 }
       };
     });
-
-    // Plot the data using Plotly
+  
+    // Populate the y-values (average years of experience)
+    ageRanges.forEach((ageRange, i) => {
+      genders.forEach(gender => {
+        const ageGenderGroup = groupedData.get(ageRange)?.get(gender) || [];
+  
+        if (ageGenderGroup.length > 0) {
+          const totalYearsExperience = ageGenderGroup.reduce((sum, d) => sum + parseFloat(d.Years_of_Experience || 0), 0);
+          const averageYearsExperience = totalYearsExperience / ageGenderGroup.length;
+  
+          genderTraces[gender].y[i] = averageYearsExperience;
+        }
+      });
+    });
+  
+    // Convert traces object to an array of traces
+    const traces = Object.values(genderTraces);
+  
+    // Layout configuration for Plotly
     const layout = {
       title: 'Average Years of Experience by Age Range and Gender',
       xaxis: { title: 'Age Range' },
       yaxis: { title: 'Average Years of Experience' },
       grid: true
     };
-
-    Plotly.newPlot('chartDiv', traces, layout);
-
-  })
-  .catch(error => {
-    console.error("Error fetching MongoDB data:", error);
-  });
-
-function categorizeAge(age) {
-  if (age <= 25) return '18-25';
-  if (age > 25 && age <= 35) return '26-35';
-  if (age > 35 && age <= 45) return '36-45';
-  if (age > 45 && age <= 55) return '46-55';
-  if (age > 55) return '56+';
-  return null;  // Return null if age is out of range or invalid
-}
+  
+    // Plot the line chart
+    Plotly.newPlot('line-chart', traces, layout);
+  }
