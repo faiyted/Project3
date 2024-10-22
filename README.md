@@ -12,10 +12,19 @@ Pending
 Satisfaction is slightly higher for onsite workers compared to hybrid and remote. <br>
 Remote work has a lower satisfaction rate, with higher percentages in the Neutral and Unsatisfied categories.<br>
 Hybrid work shows a fairly even distribution, with no dominant satisfaction level, which might suggest that hybrid work arrangements cater to a wide range of experiences.
-### Average Hours WOrked by Mental Health Condition
+### Average Hours Worked by Mental Health Condition
 Overall, while all groups are close to a standard 40-hour workweek, there is a slight trend where increasing hours align with mental health challenges, with burnout showing the highest hours worked. <br>This points to the importance of monitoring workloads and ensuring resources are available to help manage mental health, especially as hours begin to exceed the standard 40-hour mark.
 ### High Stress Level by Age Range
 The analysis reveals that stress is particularly high among individuals aged 26-45, highlighting a critical period in life where work, family, and personal development intersect. <br>
 Understanding these trends allows organizations and individuals to take targeted action to mitigate stress, especially for those in the peak of their careers, while recognizing that stress often decreases with age or retirement.
-## References to any code that is not your own:
-Pending
+## Mental Health by Region and Industry
+- Africa: High rates of depression in healthcare and burnout in education.
+- Asia: High anxiety in retail and burnout in finance.
+- Europe: IT has significant levels of burnout and depression.
+- North America: Retail sees more cases of anxiety, while education has higher burnout.
+- Oceania: Finance shows high burnout and depression.
+- South America: Finance sees high anxiety and depression.
+## Impact of Work Location on Mental Health:
+- Remote work shows slightly higher instances of anxiety (443) and burnout (438), but also more individuals with no mental health conditions (420).
+- Onsite work has a lower prevalence of "None" in terms of mental health conditions, with higher rates of burnout (442).
+
