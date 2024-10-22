@@ -1,12 +1,17 @@
-# Project3
+# Project 3 - Remote Work & Mental Health
 
 # Overview:
 “As remote work becomes the new norm, it's essential to understand its impact on employees' mental well-being. This dataset dives into how working remotely affects stress levels, work-life balance, and mental health conditions across various industries and regions.
 With 5,000 records collected from employees worldwide, this dataset provides valuable insights into key areas like work location (remote, hybrid, onsite), stress levels, access to mental health resources, and job satisfaction. It’s designed to help researchers, HR professionals, and businesses assess the growing influence of remote work on productivity and well-being. 🌿📈”<br>
 https://www.kaggle.com/datasets/waqi786/remote-work-and-mental-health
 
-## Instructions:
-Pending
+## Team Member:
+- Yiling Chen
+- Xian Sheng
+- Laura Sunley
+- Logan Chancellor-Gonzales
+- Meng-han(Susan) Lin
+
 ## Summary Notes:
 ### Satisfaction with Remote Work by Work Location
 Satisfaction is slightly higher for onsite workers compared to hybrid and remote. <br>
