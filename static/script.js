@@ -31,11 +31,14 @@ d3.json('/mongo_data')
     populateFilters(data);  // Populate the dropdown filters
     renderCircularBarChart(data);  // Initial circular chart rendering
     renderBarChart(data);  // Initial bar chart rendering
+    hoursMental(data);
     renderStackedBarChartForPhysicalActivity(data);
     mentalPhy(data);
     drawJobBarChart(data, 'Industry', 'Job_Role');
     drawBarChart(data);
     drawSunburstChart(data);
+    
+
 
     // Add event listeners to each dropdown
     document.querySelectorAll('select').forEach(select => {
@@ -51,7 +54,7 @@ d3.json('/mongo_data')
   });
 
 
-// ALL OF SUSAN'S GRAPH
+// *** SUSAN ***
 // Populate the dropdown filters dynamically based on the dataset
 function populateFilters(data) {
   populateDropdown('regionFilter', [...new Set(data.map(d => d.Region))]);
@@ -127,11 +130,11 @@ function renderCircularBarChart(data) {
 
   Plotly.newPlot('chart', [trace], layout);
 }
-// END OF SUSAN'S GRAPH
+// *** END OF SUSAN ***
 
 
 
-// ALL OF LAURA'S GRAPH
+// *** BEGINNING OF LAURA *** 
 // Function to render the bar chart with Seahawks colors, percentages, capped y-axis at 35%, and custom labels
 function renderBarChart(data) {
   // Prepare data for the bar chart
@@ -203,9 +206,133 @@ function renderBarChart(data) {
   // Render the bar chart
   Plotly.newPlot('barChart', traceData, layout);
 }
-// END OF LAURA'S GRAPH
 
-// BEGINNING OF XIAN
+
+// Function to create a scatter chart with dots for Hours_Worked_Per_Week vs Mental_Health_Condition
+function hoursMental(data) {
+  // Define the categories for Mental Health Conditions with Seahawks colors
+  const mentalHealthLabels = {
+    'Anxiety': 'Anxiety',
+    'Depression': 'Depression',
+    'Burnout': 'Burnout',
+    'None': 'None'
+  };
+  
+  const seahawksColors = {
+    'Anxiety': '#002244',  // Seahawks Blue
+    'Depression': '#69BE28',  // Seahawks Green
+    'Burnout': '#A5ACAF',  // Seahawks Grey
+    'None': '#C0C0C0'  // Light Grey for None
+  };
+
+  // Group data by 'Hours_Worked_Per_Week'
+  const groupedData = d3.group(data, d => d.Hours_Worked_Per_Week);
+  console.log("Grouped Data by Hours Worked Per Week:", groupedData);
+
+  // Get the unique categories for Hours Worked Per Week
+  const hoursCategories = Array.from(groupedData.keys());
+  console.log("Hours Worked Per Week Categories:", hoursCategories);
+
+  // Initialize arrays to hold the counts for each mental health condition
+  let anxietyCounts = [];
+  let depressionCounts = [];
+  let burnoutCounts = [];
+  let noneCounts = [];
+
+  // Iterate over each hours category and count the mental health conditions
+  hoursCategories.forEach(hours => {
+    const categoryData = groupedData.get(hours) || [];
+
+    let anxietyCount = 0;
+    let depressionCount = 0;
+    let burnoutCount = 0;
+    let noneCount = 0;
+
+    // Count the number of each mental health condition within the hours category
+    categoryData.forEach(d => {
+      const mentalHealthCondition = d.Mental_Health_Condition;
+
+      if (mentalHealthCondition === 'Anxiety') {
+        anxietyCount++;
+      } else if (mentalHealthCondition === 'Depression') {
+        depressionCount++;
+      } else if (mentalHealthCondition === 'Burnout') {
+        burnoutCount++;
+      } else if (mentalHealthCondition === 'None') {
+        noneCount++;
+      }
+    });
+
+    console.log(`Hours: ${hours} - Anxiety: ${anxietyCount}, Depression: ${depressionCount}, Burnout: ${burnoutCount}, None: ${noneCount}`);
+    
+    anxietyCounts.push(anxietyCount);
+    depressionCounts.push(depressionCount);
+    burnoutCounts.push(burnoutCount);
+    noneCounts.push(noneCount);
+  });
+
+  console.log("Anxiety Counts:", anxietyCounts);
+  console.log("Depression Counts:", depressionCounts);
+  console.log("Burnout Counts:", burnoutCounts);
+  console.log("None Counts:", noneCounts);
+
+  // Prepare the traces for the scatter chart with dots
+  const traceAnxiety = {
+    x: hoursCategories,
+    y: anxietyCounts,
+    name: mentalHealthLabels['Anxiety'],
+    type: 'scatter',
+    mode: 'markers',
+    marker: { color: seahawksColors['Anxiety'], size: 10 }
+  };
+
+  const traceDepression = {
+    x: hoursCategories,
+    y: depressionCounts,
+    name: mentalHealthLabels['Depression'],
+    type: 'scatter',
+    mode: 'markers',
+    marker: { color: seahawksColors['Depression'], size: 10 }
+  };
+
+  const traceBurnout = {
+    x: hoursCategories,
+    y: burnoutCounts,
+    name: mentalHealthLabels['Burnout'],
+    type: 'scatter',
+    mode: 'markers',
+    marker: { color: seahawksColors['Burnout'], size: 10 }
+  };
+
+  const traceNone = {
+    x: hoursCategories,
+    y: noneCounts,
+    name: mentalHealthLabels['None'],
+    type: 'scatter',
+    mode: 'markers',
+    marker: { color: seahawksColors['None'], size: 10 }
+  };
+
+  // Combine the traces
+  const traces = [traceAnxiety, traceDepression, traceBurnout, traceNone];
+
+  // Define the layout for the scatter chart with dots
+  const layout = {
+    title: 'Hours Worked Per Week vs Mental Health Condition',
+    xaxis: { title: 'Hours Worked Per Week' },
+    yaxis: { title: 'Number of People' },
+    showlegend: true
+  };
+
+  // Render the chart using Plotly
+  Plotly.newPlot('hours-mental-chart', traces, layout);
+}
+
+// *** END OF LAURA *** 
+
+
+
+// *** BEGINNING OF XIAN ***
 function renderStackedBarChartForPhysicalActivity(data) {
   // Define the mapping for Sleep_Quality
   const sleepQualityLabels = {
@@ -214,10 +341,6 @@ function renderStackedBarChartForPhysicalActivity(data) {
     2: 'Good'
   };
 
-
-
-  // BEGINNING OF XIAN'S CODE
-  // Group data by 'Physical_Activity'
   const groupedData = d3.group(data, d => d.Physical_Activity);
   console.log("Grouped Data by Physical Activity:", groupedData);
 
@@ -398,11 +521,10 @@ function mentalPhy(data) {
   // Render the chart using Plotly
   Plotly.newPlot('xian-second', traces, layout);
 }
-// END OF NEW CODE: Function to create Physical Activity vs Mental Health Condition chart
+// *** END OF XIAN ***
 
 
-
-// BEGINNING OF YILANG
+// *** BEGINNING OF YILANG ***
 // Function to draw the job bar chart based on two x-axis fields
 function drawJobBarChart(data, xAxisField1, xAxisField2) {
   const colors = {
@@ -585,3 +707,4 @@ function drawSunburstChart(data) {
 
   Plotly.newPlot('sunburst-chart', [trace], layout);
 }
+// *** END OF YILING ***
