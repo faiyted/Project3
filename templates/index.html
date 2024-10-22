@@ -6,13 +6,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Project3</title>
-  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="static/css/style.css">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+</head>
 
-  </head>
-
-<body>  
+<body>
   <div class="container">
     <div class="row">
       <div class="col-md-12 p-5 text-center bg-light">
@@ -49,30 +48,32 @@
           </div>
         </div>
       </div>
-      <div id="chart"></div>    
+      <div id="chart"></div>
     </div>
 
     <br><br><br>
-    <div id="barChart" style="width: 100%;"></div>
-    <div id="summary" style="margin-top: 20px; text-align: center;">
+    <div id="barChart"></div>
+    <div id="summary" class="mt-2 text-center">
       <b>Summary</b><br>
       Satisfaction is slightly higher for onsite workers compared to hybrid and remote.<br>
       Remote work has a lower satisfaction rate, with higher percentages in the Neutral and Unsatisfied categories.<br>
       Hybrid work shows a fairly even distribution, with no dominant satisfaction level, which might suggest that hybrid work arrangements cater to a wide range of experiences.
-    <br><br><br></div>
+    </div>
     <br><br><br>
 
     <div id="hours-mental-chart" style="width: 100%; height: 600px;"></div>
-    <div id="summary2" style="margin-top: 20px; text-align: center;">
-    <b>Summary</b><br>
-    Anxiety, Total Hours: 50363, Average Hours: 39.41, Count: 1278<br>
-    Burnout, Total Hours: 51240, Average Hours: 40.03, Count: 1280<br>
-    Depression, Total Hours: 49378, Average Hours: 39.63, Count: 1246<br>
-    None, Total Hours: 47092, Average Hours: 39.37, Count: 1196<br>
-    Employees experiencing burnout not only have the highest total hours but also the highest average hours worked per week, indicating a possible link between overwork and burnout symptoms.
-    Those experiencing anxiety and depression report slightly lower average hours worked compared to the burnout group, but still more than those with no reported mental health issues.
-    Interestingly, employees without any reported mental health conditions have both the lowest total and average hours worked per week, which might suggest better work-life balance or less workload.
-  </div><br><br><br>
+    <div id="summary2" class="mt-2 text-center">
+      <b>Summary</b><br>
+      Anxiety, Total Hours: 50363, Average Hours: 39.41, Count: 1278<br>
+      Burnout, Total Hours: 51240, Average Hours: 40.03, Count: 1280<br>
+      Depression, Total Hours: 49378, Average Hours: 39.63, Count: 1246<br>
+      None, Total Hours: 47092, Average Hours: 39.37, Count: 1196<br>
+      Employees experiencing burnout not only have the highest total hours but also the highest average hours worked per week, indicating a possible link between overwork and burnout symptoms.<br>
+      Those experiencing anxiety and depression report slightly lower average hours worked compared to the burnout group, but still more than those with no reported mental health issues.<br>
+      Interestingly, employees without any reported mental health conditions have both the lowest total and average hours worked per week, which might suggest better work-life balance or less workload.
+    </div>
+    <br><br><br>
+
     <div id="stacked-bar-chart" style="width: 100%; height: 600px;"></div>
     <br><br><br>
     <div id="xian-second" style="width: 100%; height: 600px;"></div>
@@ -81,16 +82,39 @@
     <br><br><br>
     <div id="bar-chart" style="width: 100%; height: 600px;"></div>
     <br><br><br>
-    <div id="sunburst-chart" style="width: 100%; height: 600px;"></div>
+    <div id="sunburst-chart" style="width: 100%; height: 1000px;"></div>
     <br><br><br>
-    
-    <!-- Logan's Graphs Start -->
     <div id="mental-health-chart" style="width: 100%; height: 600px;"></div>
     <br><br><br>
     <div id="productivity-change-chart" style="width: 100%; height: 600px;"></div>
     <br><br><br>
-    <div id="stress-levels-chart" style="width: 100%; height: 600px;"></div>
-    <!-- Logan's Graphs End -->
+
+    <!-- Bubble Chart Filters -->
+    <div class="filters-container">
+      <div class="filter-row d-flex justify-content-around">
+        <div>
+          <label for="stressLevelFilter">Stress Level:</label>
+          <select id="stressLevelFilter">
+            <option value="">All Stress Levels</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="hoursWorkedFilter">Hours Worked:</label>
+          <select id="hoursWorkedFilter">
+            <option value="">All Hours Worked</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="virtualMeetingsFilter">Virtual Meetings:</label>
+          <select id="virtualMeetingsFilter">
+            <option value="">All Virtual Meetings</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div id="stress-levels-bubble-chart" style="width: 100%; height: 600px;"></div>
 
     <script src="static/script.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
@@ -101,8 +125,4 @@
 </body>
 
 </html>
-
-
-
-
 
