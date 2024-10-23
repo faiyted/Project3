@@ -40,7 +40,7 @@ d3.json('/mongo_data')
     drawLineChartByAgeAndGender(data);
     mentalHealthResourcesChart(data);
     productivityChangeChart(data);
-    stressLevelsBubbleChart(data);
+    drawStressBubbleChart(data);
 
 
     // Add event listeners to each dropdown
@@ -894,130 +894,48 @@ function productivityChangeChart(data) {
 }
 
 // BUBBLE CHART
-// Fetch and process the data for the bubble chart
-
-d3.json('/bubble_chart_data')
-  .then(bubbleData => {
-    // Map and process the data to ensure it includes all relevant fields
-    const data = bubbleData.map(d => ({
-      Stress_Level: d.Stress_Level || 'None',
-      Hours_Worked_Per_Week: parseInt(d.Hours_Worked_Per_Week, 10) || 0,
-      Number_of_Virtual_Meetings: parseInt(d.Number_of_Virtual_Meetings, 10) || 0
-    }));
-
-    console.log("Bubble Chart Data:", data);
-
-    // Populate the bubble chart dropdown filters
-    populateBubbleChartFilters(data);
-
-    // Initial render of the bubble chart
-    stressLevelsBubbleChart(data);
-
-    // Add event listeners for the dropdown filters
-    addDropdownListeners(data); // Call function to add listeners
-  })
-  .catch(error => {
-    console.error("Error fetching bubble chart data:", error);
-  });
-
-// Function to populate the dropdown filters for the bubble chart
-function populateBubbleChartFilters(data) {
-  // Populate stress level dropdown
-  const stressLevels = [...new Set(data.map(d => d.Stress_Level))];
-  populateDropdown('bubbleStressLevelFilter', stressLevels);
-
-  // Populate hours worked dropdown, sorting numerically
-  const hoursWorked = [...new Set(data.map(d => d.Hours_Worked_Per_Week))].sort((a, b) => a - b);
-  populateDropdown('bubbleHoursWorkedFilter', hoursWorked, true); 
-
-  // Populate virtual meetings dropdown, sorting numerically
-  const virtualMeetings = [...new Set(data.map(d => d.Number_of_Virtual_Meetings))].sort((a, b) => a - b);
-  populateDropdown('bubbleVirtualMeetingsFilter', virtualMeetings, true); 
-}
-
-// Add event listeners to dropdowns
-function addDropdownListeners(data) {
-  document.querySelectorAll('#bubbleStressLevelFilter, #bubbleHoursWorkedFilter, #bubbleVirtualMeetingsFilter')
-    .forEach(select => {
-      select.addEventListener('change', () => {
-        const filteredData = filterBubbleChartData(data);  // Filter data based on the dropdown selections
-        stressLevelsBubbleChart(filteredData);  // Re-render bubble chart with the filtered data
-      });
-    });
-}
-
-// Helper function to populate a dropdown with options
-function populateDropdown(elementId, options, sortNumerically = false) {
-  const dropdown = document.getElementById(elementId);
-  dropdown.innerHTML = '<option value="">All</option>';  // Add "All" option for default selection
-
-  if (sortNumerically) {
-    options = options.filter(option => option !== 'None').sort((a, b) => a - b);
-  }
-
-  options.forEach(option => {
-    const opt = document.createElement('option');
-    opt.value = option;
-    opt.textContent = option;
-    dropdown.appendChild(opt);
-  });
-}
-
-// Filter the dataset based on the bubble chart dropdown selections
-function filterBubbleChartData(data) {
-  const stressLevel = document.getElementById('bubbleStressLevelFilter').value;
-  const hoursWorked = document.getElementById('bubbleHoursWorkedFilter').value;
-  const virtualMeetings = document.getElementById('bubbleVirtualMeetingsFilter').value;
-
-  return data.filter(d =>
-    (stressLevel === '' || d.Stress_Level === stressLevel) &&
-    (hoursWorked === '' || d.Hours_Worked_Per_Week == hoursWorked) &&
-    (virtualMeetings === '' || d.Number_of_Virtual_Meetings == virtualMeetings)
-  );
-}
-
-// Stress Levels Bubble Chart for the bubble chart
-function stressLevelsBubbleChart(data) {
-  // Mapping stress levels to numerical values
-  const stressLevelsMap = {
-    'Low': 5,       // Low stress
-    'Medium': 10,   // Medium stress
-    'High': 15      // High stress
-  };
-
-  // Process data for the chart
-  const hoursWorked = data.map(d => d.Hours_Worked_Per_Week);
+function drawStressBubbleChart(data) {
+  // Extract data for plot
   const virtualMeetings = data.map(d => d.Number_of_Virtual_Meetings);
-  const stressLevels = data.map(d => stressLevelsMap[d.Stress_Level]);
-
-  // Text labels that combine Hours Worked, Virtual Meetings, and Stress Levels
-  const bubbleText = data.map((d, i) => 
-    `Hours Worked: ${hoursWorked[i]}<br>Virtual Meetings: ${virtualMeetings[i]}<br>Stress Level: ${stressLevels[i]}`
-  );
-
-  // Sizes for bubbles (relative to stress level)
-  const bubbleSizes = stressLevels.map(s => s * 10);
-
+  const hoursWorked = data.map(d => d.Hours_Worked_Per_Week);
+  const stressLevels = data.map(d => {
+    switch (d.Stress_Level) {
+      case 'Low': return 1;
+      case 'Medium': return 2;
+      case 'High': return 3;
+      default: return 0; // Handle missing/unknown stress levels
+    }
+  });
+  const stressLabels = data.map(d => d.Stress_Level);
+  // Define the trace for the bubble chart
   const trace = {
-    x: hoursWorked,
-    y: virtualMeetings,
-    text: bubbleText,  
+    x: virtualMeetings,
+    y: hoursWorked,
     mode: 'markers',
     marker: {
-      size: bubbleSizes,
-      color: stressLevels,
-      colorscale: 'Viridis',
-      showscale: true
+      size: stressLevels.map(level => level * 15),  // Scale marker size by stress level
+      color: stressLevels,  // Color by stress level
+      colorscale: 'YlOrRd',  // Color scale from yellow to red (low to high stress)
+      showscale: true,  // Display color scale
+      colorbar: {
+        title: 'Stress Levels',
+        tickvals: [1, 2, 3],
+        ticktext: ['Low', 'Medium', 'High']
+      }
     },
-    hovertemplate: '%{text}<extra></extra>',  
+    text: stressLabels,  // Hover text will show stress level
+    hovertemplate:
+      'Virtual Meetings: %{x}<br>' +
+      'Hours Worked: %{y}<br>' +
+      'Stress Level: %{text}<extra></extra>'
   };
-
+  // Define the layout for the bubble chart
   const layout = {
-    title: 'Bubble Chart of Stress Levels by Hours Worked and Virtual Meetings',
-    xaxis: { title: 'Hours Worked' },
-    yaxis: { title: 'Virtual Meetings' },
-    showlegend: false,
+    title: 'Stress Levels by Hours Worked and Virtual Meetings',
+    xaxis: { title: 'Number of Virtual Meetings' },
+    yaxis: { title: 'Hours Worked per Week' },
+    hovermode: 'closest'  // Enable hover interaction
   };
-
-  Plotly.newPlot('stress-levels-bubble-chart', [trace], layout);
+  // Render the plot
+  Plotly.newPlot('bubble-chart', [trace], layout);
 }
