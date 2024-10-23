@@ -46,7 +46,6 @@ d3.json('/mongo_data')
       select.addEventListener('change', () => {
         const filteredData = filterData(data);  // Filter data based on the selections
         renderCircularBarChart(filteredData);  // Update the circular chart with filtered data
-        renderBarChart(filteredData);  // Update the bar chart with filtered data
       });
     });
   })
