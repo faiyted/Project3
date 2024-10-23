@@ -143,7 +143,7 @@ function renderBarChart(data) {
 
   // Map satisfaction levels to custom labels
   const satisfactionLabels = {
-    'None': 'Unsatisfied',
+    '0': 'Unsatisfied',
     '1': 'Neutral',
     '2': 'Satisfied'
   };
@@ -158,13 +158,14 @@ function renderBarChart(data) {
   // Define Seahawks colors: Blue (#002244), Green (#69BE28), Grey (#A5ACAF)
   const seahawksColors = ['#002244', '#69BE28', '#A5ACAF'];
 
+  // Create trace data for the bar chart
   const traceData = satisfactionLevels.map((satisfaction, index) => {
     return {
       x: locations,
       y: locations.map((location, i) => {
         const count = data.filter(d => d.Work_Location === location && d.Satisfaction_with_Remote_Work === satisfaction).length;
         const percentage = (count / totalByLocation[i]) * 100;
-        return percentage;  // Use raw percentage for y values
+        return percentage;  // Use percentage for y values
       }),
       name: satisfactionLabels[satisfaction] || satisfaction,  // Use custom labels or fallback to the original value
       type: 'bar',
@@ -174,10 +175,10 @@ function renderBarChart(data) {
       text: locations.map((location, i) => {
         const count = data.filter(d => d.Work_Location === location && d.Satisfaction_with_Remote_Work === satisfaction).length;
         const percentage = (count / totalByLocation[i]) * 100;
-        return `${percentage.toFixed(1)}%`;  // Display percentage at the top of each bar
+        return `${count} employees (${percentage.toFixed(1)}%)`;  // Display count and percentage on hover
       }),
       textposition: 'auto',  // Display percentage on top of each bar
-      hoverinfo: 'none'  // Turn off hover effect
+      hoverinfo: 'text'  // Enable hover to show counts and percentages
     };
   });
 
@@ -185,29 +186,27 @@ function renderBarChart(data) {
     title: {
       text: 'Satisfaction with Remote Work by Work Location',
       font: {
-        family: 'Arial, sans-serif',  // You can specify the font family if needed
-        size: 18,  // Set the font size
-        weight: 'bold',  // Make the text bold
+        family: 'Arial, sans-serif',  // Font family
+        size: 18,  // Font size
+        weight: 'bold',  // Bold text
       }
     },
     barmode: 'group',  // Group bars by location
     xaxis: {
       title: 'Work Location',
-      tickangle: -45
+      tickangle: -45  // Rotate x-axis labels
     },
     yaxis: {
       title: 'Percentage (%)',
-      range: [0, 40],  // Cap the y-axis maximum at 35%
+      range: [0, 40],  // Cap y-axis maximum at 40%
     },
     margin: { t: 40, l: 40, r: 20, b: 80 },
     showlegend: true
   };
-  
 
   // Render the bar chart
   Plotly.newPlot('barChart', traceData, layout);
 }
-
 
 // Function to create a scatter chart with dots for Hours_Worked_Per_Week vs Mental_Health_Condition
 function hoursMental(data) {
@@ -220,10 +219,10 @@ function hoursMental(data) {
   };
   
   const seahawksColors = {
-    'Anxiety': '#002244',  // Seahawks Blue
-    'Depression': '#69BE28',  // Seahawks Green
-    'Burnout': '#A5ACAF',  // Seahawks Grey
-    'None': '#C0C0C0'  // Light Grey for None
+    'Anxiety': '#1B3A68',  // Deep Navy Blue  
+    'Depression': '#87D37C',  // Vibrant Green  
+    'Burnout': '#984948',  // Steel Grey with a slight blue tone  
+    'None': '#E0E0E0'  // Softer Light Grey for better differentiation
   };
 
   // Group data by 'Hours_Worked_Per_Week'
@@ -774,18 +773,11 @@ function drawLineChartByAgeAndGender(data) {
 
   function drawStressBubbleChart(data) {
     // Extract data for plot
-    const virtualMeetings = data.map(d => d.Number_of_Virtual_Meetings);
-    const hoursWorked = data.map(d => d.Hours_Worked_Per_Week);
-    const stressLevels = data.map(d => {
-      switch (d.Stress_Level) {
-        case 'Low': return 1;
-        case 'Medium': return 2;
-        case 'High': return 3;
-        default: return 0; // Handle missing/unknown stress levels
-      }
-    });
-    
-    const stressLabels = data.map(d => d.Stress_Level);
+    const virtualMeetings = data.map(d => parseInt(d.Number_of_Virtual_Meetings, 10) || 0);  // Ensure valid numbers
+    const hoursWorked = data.map(d => parseInt(d.Hours_Worked_Per_Week, 10) || 0);  // Ensure valid numbers
+    const stressLevels = data.map(d => parseInt(d.Stress_Level, 10));  // Directly map 0, 1, 2
+  
+    const stressLabels = ['Low', 'Medium', 'High'];  // Direct labels for hover text
   
     // Define the trace for the bubble chart
     const trace = {
@@ -793,21 +785,21 @@ function drawLineChartByAgeAndGender(data) {
       y: hoursWorked,
       mode: 'markers',
       marker: {
-        size: stressLevels.map(level => level * 15),  // Scale marker size by stress level
+        size: stressLevels.map(level => (level + 1) * 15),  // Scale marker size (avoid 0 size)
         color: stressLevels,  // Color by stress level
-        colorscale: 'YlOrRd',  // Color scale from yellow to red (low to high stress)
-        showscale: true,  // Display color scale
+        colorscale: 'YlOrRd',  // Color scale from yellow to red
+        showscale: true,  // Display the color scale
         colorbar: {
           title: 'Stress Levels',
-          tickvals: [1, 2, 3],
+          tickvals: [0, 1, 2],  // Ticks for Low, Medium, High
           ticktext: ['Low', 'Medium', 'High']
         }
       },
-      text: stressLabels,  // Hover text will show stress level
+      text: stressLevels.map(level => stressLabels[level]),  // Hover text with stress labels
       hovertemplate: 
         'Virtual Meetings: %{x}<br>' + 
         'Hours Worked: %{y}<br>' + 
-        'Stress Level: %{text}<extra></extra>'
+        'Stress Level: %{text}<extra></extra>'  // Custom hover info
     };
   
     // Define the layout for the bubble chart
