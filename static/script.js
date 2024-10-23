@@ -745,12 +745,12 @@ function drawLineChartByAgeAndGender(data) {
     ageRanges.forEach((ageRange, i) => {
       genders.forEach(gender => {
         const ageGenderGroup = groupedData.get(ageRange)?.get(gender) || [];
-  
+    
         if (ageGenderGroup.length > 0) {
-          const totalYearsExperience = ageGenderGroup.reduce((sum, d) => sum + parseFloat(d.Years_of_Experience || 0), 0);
-          const averageYearsExperience = totalYearsExperience / ageGenderGroup.length;
-  
-          genderTraces[gender].y[i] = averageYearsExperience;
+          const totalHoursWorked = ageGenderGroup.reduce((sum, d) => sum + parseFloat(d.Hours_Worked_Per_Week || 0), 0);
+          const averageHoursWorked = totalHoursWorked / ageGenderGroup.length;
+    
+          genderTraces[gender].y[i] = averageHoursWorked;
         }
       });
     });
