@@ -12,7 +12,16 @@ https://www.kaggle.com/datasets/waqi786/remote-work-and-mental-health
 - Yiling Chen
 
 ## Instructions:
-Pending
+- Retrieve CSV Dataset:
+  -- Download the dataset from Kaggle: Remote Work and Mental Health.
+- Clean and Manipulate Data:
+  -- Clean up unusable data and manipulate the data values as needed.
+- Import Cleaned Dataset into MongoDB:
+  -- Import the cleaned dataset into MongoDB.
+- Connect Flask to MongoDB:
+  -- Use Flask to connect data from MongoDB.
+- Create Data Visualizations:
+  -- Utilize JavaScript, HTML, and CSS to create data visualizations.
 ## Summary Notes:
 ### Satisfaction with Remote Work by Work Location
 Satisfaction is slightly higher for onsite workers compared to hybrid and remote. <br>
