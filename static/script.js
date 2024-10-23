@@ -24,13 +24,13 @@ d3.json('/mongo_data')
       Satisfaction_with_Remote_Work: d.Satisfaction_with_Remote_Work || 'None',
       Age: d.Age || 'None',
       Years_of_Experience: parseFloat(d.Years_of_Experience) || 0,
-      Value: d.Value || 1  
+      Value: d.Value || 1  // Replace `Value` with the appropriate field if needed
     }));
 
     console.log("MongoDB Data:", data);
-    populateFilters(data);  
-    renderCircularBarChart(data);  
-    renderBarChart(data);  
+    populateFilters(data);  // Populate the dropdown filters
+    renderCircularBarChart(data);  // Initial circular chart rendering
+    renderBarChart(data);  // Initial bar chart rendering
     hoursMental(data);
     renderStackedBarChartForPhysicalActivity(data);
     mentalPhy(data);
@@ -42,15 +42,13 @@ d3.json('/mongo_data')
     productivityChangeChart(data);
     stressLevelsBubbleChart(data);
 
+
     // Add event listeners to each dropdown
     document.querySelectorAll('select').forEach(select => {
       select.addEventListener('change', () => {
-        const filteredData = filterData(data);  
-        renderCircularBarChart(filteredData);  
-        renderBarChart(filteredData);  
-        mentalHealthResourcesChart(filteredData);
-        productivityChangeChart(filteredData);
-        stressLevelsBubbleChart(filteredData);
+        const filteredData = filterData(data);  // Filter data based on the selections
+        renderCircularBarChart(filteredData);  // Update the circular chart with filtered data
+        renderBarChart(filteredData);  // Update the bar chart with filtered data
       });
     });
   })
@@ -58,29 +56,19 @@ d3.json('/mongo_data')
     console.error("Error fetching MongoDB data:", error);
   });
 
+
 // *** SUSAN ***
 // Populate the dropdown filters dynamically based on the dataset
 function populateFilters(data) {
   populateDropdown('regionFilter', [...new Set(data.map(d => d.Region))]);
   populateDropdown('workLocationFilter', [...new Set(data.map(d => d.Work_Location))]);
   populateDropdown('healthConditionFilter', [...new Set(data.map(d => d.Mental_Health_Condition))]);
-  populateDropdown('stressLevelFilter', [...new Set(data.map(d => d.Stress_Level))]);
-  populateDropdown('hoursWorkedFilter', [...new Set(data.map(d => d.Hours_Worked_Per_Week))]);
-  populateDropdown('virtualMeetingsFilter', [...new Set(data.map(d => d.Number_of_Virtual_Meetings))], true); // Sorting virtual meetings}
+  populateDropdown('healthConditionFilter', [...new Set(data.map(d => d.Mental_Health_Condition))]);
+}
 
 // Helper to populate a dropdown by its ID
-function populateDropdown(elementId, options, sortVirtualMeetings = false) {
+function populateDropdown(elementId, options) {
   const dropdown = document.getElementById(elementId);
-
-  // Sort "None" first and numbers ascending for virtual meetings filter
-  if (sortVirtualMeetings) {
-    options.sort((a, b) => {
-      if (a === 'None') return -1;
-      if (b === 'None') return 1;
-      return a - b;
-    });
-  }
-
   dropdown.innerHTML = '<option value="">All</option>';  // Add an "All" option
   options.forEach(option => {
     const opt = document.createElement('option');
@@ -95,18 +83,11 @@ function filterData(data) {
   const region = document.getElementById('regionFilter').value;
   const workLocation = document.getElementById('workLocationFilter').value;
   const healthCondition = document.getElementById('healthConditionFilter').value;
-  const stressLevel = document.getElementById('stressLevelFilter').value;
-  const hoursWorked = document.getElementById('hoursWorkedFilter').value;
-  const virtualMeetings = document.getElementById('virtualMeetingsFilter').value;
 
   return data.filter(d =>
     (region === '' || d.Region === region) &&
     (workLocation === '' || d.Work_Location === workLocation) &&
-    (healthCondition === '' || d.Mental_Health_Condition === healthCondition) &&
-    (virtualMeetings === '' || d.Number_of_Virtual_Meetings == virtualMeetings)
-    (stressLevel === '' || d.Stress_Level === stressLevel) &&
-    (hoursWorked === '' || d.Hours_Worked_Per_Week == hoursWorked) &&
-    (virtualMeetings === '' || d.Number_of_Virtual_Meetings == virtualMeetings)
+    (healthCondition === '' || d.Mental_Health_Condition === healthCondition)
   );
 }
 
@@ -154,7 +135,6 @@ function renderCircularBarChart(data) {
   Plotly.newPlot('chart', [trace], layout);
 }
 // *** END OF SUSAN ***
-
 
 
 
@@ -794,8 +774,7 @@ function drawLineChartByAgeAndGender(data) {
     // Plot the line chart
     Plotly.newPlot('line-chart', traces, layout);
   }
-
- // *** LOGAN'S CHARTS ***
+  // *** LOGAN'S CHARTS ***
 // MENTAL HEALTH RESOURCES AND PHYSICAL ACTIVITY BY MENTAL HEALTH CONDITION
 function mentalHealthResourcesChart(data) {
   // Process data for the chart
@@ -879,29 +858,103 @@ function productivityChangeChart(data) {
   Plotly.newPlot('productivity-change-chart', traces, layout);
 }
 
-// BUBBLE CHART
+// Function to render the Productivity Change Chart
+function productivityChangeChart(data) {
+  const workLocations = ['Remote', 'Hybrid', 'Onsite'];
+  const changeTypes = ['Increase', 'Decrease', 'No Change'];
+  const colors = ['#69BE28', '#FF4500', '#4682B4'];
 
-// Populate the dropdown filters dynamically based on the dataset
-function populateFilters(data) {
-  populateDropdown('stressLevelFilter', [...new Set(data.map(d => d.Stress_Level))]);
-  populateDropdown('hoursWorkedFilter', [...new Set(data.map(d => d.Hours_Worked_Per_Week))]);
-  populateDropdown('virtualMeetingsFilter', [...new Set(data.map(d => d.Number_of_Virtual_Meetings))], true); // Sorting virtual meetings
+  const traces = changeTypes.map((change, i) => {
+    return {
+      x: workLocations,
+      y: workLocations.map(location => {
+        return data.filter(d => d.Work_Location === location && d.Productivity_Change === change).length;
+      }),
+      name: change,
+      type: 'bar',
+      marker: { color: colors[i] },
+      text: workLocations.map(location => {
+        const count = data.filter(d => d.Work_Location === location && d.Productivity_Change === change).length;
+        const total = data.filter(d => d.Work_Location === location).length;
+        const percentage = (count / total) * 100;
+        return `${count} (${percentage.toFixed(1)}%)`;
+      }),
+      textposition: 'auto'
+    };
+  });
+
+  const layout = {
+    title: 'Productivity Change by Work Location',
+    barmode: 'stack',
+    xaxis: { title: 'Work Location' },
+    yaxis: { title: 'Number of Employees' },
+  };
+
+  Plotly.newPlot('productivity-change-chart', traces, layout);
 }
 
-// Helper to populate a dropdown by its ID, with sorting applied
-function populateDropdown(elementId, options, sortVirtualMeetings = false) {
-  const dropdown = document.getElementById(elementId);
+// BUBBLE CHART
+// Fetch and process the data for the bubble chart
 
-  // Sort "None" first and numbers ascending for virtual meetings filter
-  if (sortVirtualMeetings) {
-    options.sort((a, b) => {
-      if (a === 'None') return -1;  // Move 'None' to the top
-      if (b === 'None') return 1;
-      return parseFloat(a) - parseFloat(b);  // Sort numbers in ascending order
+d3.json('/bubble_chart_data')
+  .then(bubbleData => {
+    // Map and process the data to ensure it includes all relevant fields
+    const data = bubbleData.map(d => ({
+      Stress_Level: d.Stress_Level || 'None',
+      Hours_Worked_Per_Week: parseInt(d.Hours_Worked_Per_Week, 10) || 0,
+      Number_of_Virtual_Meetings: parseInt(d.Number_of_Virtual_Meetings, 10) || 0
+    }));
+
+    console.log("Bubble Chart Data:", data);
+
+    // Populate the bubble chart dropdown filters
+    populateBubbleChartFilters(data);
+
+    // Initial render of the bubble chart
+    stressLevelsBubbleChart(data);
+
+    // Add event listeners for the dropdown filters
+    addDropdownListeners(data); // Call function to add listeners
+  })
+  .catch(error => {
+    console.error("Error fetching bubble chart data:", error);
+  });
+
+// Function to populate the dropdown filters for the bubble chart
+function populateBubbleChartFilters(data) {
+  // Populate stress level dropdown
+  const stressLevels = [...new Set(data.map(d => d.Stress_Level))];
+  populateDropdown('bubbleStressLevelFilter', stressLevels);
+
+  // Populate hours worked dropdown, sorting numerically
+  const hoursWorked = [...new Set(data.map(d => d.Hours_Worked_Per_Week))].sort((a, b) => a - b);
+  populateDropdown('bubbleHoursWorkedFilter', hoursWorked, true); 
+
+  // Populate virtual meetings dropdown, sorting numerically
+  const virtualMeetings = [...new Set(data.map(d => d.Number_of_Virtual_Meetings))].sort((a, b) => a - b);
+  populateDropdown('bubbleVirtualMeetingsFilter', virtualMeetings, true); 
+}
+
+// Add event listeners to dropdowns
+function addDropdownListeners(data) {
+  document.querySelectorAll('#bubbleStressLevelFilter, #bubbleHoursWorkedFilter, #bubbleVirtualMeetingsFilter')
+    .forEach(select => {
+      select.addEventListener('change', () => {
+        const filteredData = filterBubbleChartData(data);  // Filter data based on the dropdown selections
+        stressLevelsBubbleChart(filteredData);  // Re-render bubble chart with the filtered data
+      });
     });
+}
+
+// Helper function to populate a dropdown with options
+function populateDropdown(elementId, options, sortNumerically = false) {
+  const dropdown = document.getElementById(elementId);
+  dropdown.innerHTML = '<option value="">All</option>';  // Add "All" option for default selection
+
+  if (sortNumerically) {
+    options = options.filter(option => option !== 'None').sort((a, b) => a - b);
   }
 
-  dropdown.innerHTML = '<option value="">All</option>';  // Add an "All" option
   options.forEach(option => {
     const opt = document.createElement('option');
     opt.value = option;
@@ -910,11 +963,11 @@ function populateDropdown(elementId, options, sortVirtualMeetings = false) {
   });
 }
 
-// Filter the dataset based on the dropdown selections
-function filterData(data) {
-  const stressLevel = document.getElementById('stressLevelFilter').value;
-  const hoursWorked = document.getElementById('hoursWorkedFilter').value;
-  const virtualMeetings = document.getElementById('virtualMeetingsFilter').value;
+// Filter the dataset based on the bubble chart dropdown selections
+function filterBubbleChartData(data) {
+  const stressLevel = document.getElementById('bubbleStressLevelFilter').value;
+  const hoursWorked = document.getElementById('bubbleHoursWorkedFilter').value;
+  const virtualMeetings = document.getElementById('bubbleVirtualMeetingsFilter').value;
 
   return data.filter(d =>
     (stressLevel === '' || d.Stress_Level === stressLevel) &&
@@ -923,13 +976,13 @@ function filterData(data) {
   );
 }
 
-// Stress Levels Bubble Chart
+// Stress Levels Bubble Chart for the bubble chart
 function stressLevelsBubbleChart(data) {
   // Mapping stress levels to numerical values
   const stressLevelsMap = {
-      'Low': 5,       // Low stress
-      'Medium': 10,   // Medium stress
-      'High': 15      // High stress
+    'Low': 5,       // Low stress
+    'Medium': 10,   // Medium stress
+    'High': 15      // High stress
   };
 
   // Process data for the chart
@@ -946,24 +999,24 @@ function stressLevelsBubbleChart(data) {
   const bubbleSizes = stressLevels.map(s => s * 10);
 
   const trace = {
-      x: hoursWorked,
-      y: virtualMeetings,
-      text: bubbleText,  
-      mode: 'markers',
-      marker: {
-          size: bubbleSizes,
-          color: stressLevels,
-          colorscale: 'Viridis',
-          showscale: true
-      },
-      hovertemplate: '%{text}<extra></extra>',  
+    x: hoursWorked,
+    y: virtualMeetings,
+    text: bubbleText,  
+    mode: 'markers',
+    marker: {
+      size: bubbleSizes,
+      color: stressLevels,
+      colorscale: 'Viridis',
+      showscale: true
+    },
+    hovertemplate: '%{text}<extra></extra>',  
   };
 
   const layout = {
-      title: 'Bubble Chart of Stress Levels by Hours Worked and Virtual Meetings',
-      xaxis: { title: 'Hours Worked' },
-      yaxis: { title: 'Virtual Meetings' },
-      showlegend: false,
+    title: 'Bubble Chart of Stress Levels by Hours Worked and Virtual Meetings',
+    xaxis: { title: 'Hours Worked' },
+    yaxis: { title: 'Virtual Meetings' },
+    showlegend: false,
   };
 
   Plotly.newPlot('stress-levels-bubble-chart', [trace], layout);
