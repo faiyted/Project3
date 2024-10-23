@@ -26,7 +26,7 @@ https://www.kaggle.com/datasets/waqi786/remote-work-and-mental-health
 
 
 ## Summary Notes:
-![image](https://github.com/user-attachments/assets/d6aaf830-1076-468f-8d93-006bf61d2ae1)
+![image](https://github.com/user-attachments/assets/0039272d-ae3c-4579-ba2f-0ca5974c3dea)
 ### Impact of Work Location on Mental Health
 Remote work shows slightly higher instances of anxiety and burnout, but also more individuals with no mental health conditions.
 Onsite work has a lower prevalence of "None" in terms of mental health conditions, with higher rates of burnout.
