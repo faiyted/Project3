@@ -35,7 +35,7 @@ d3.json('/mongo_data')
     renderStackedBarChartForPhysicalActivity(data);
     mentalPhy(data);
     drawJobBarChart(data, 'Industry', 'Job_Role');
-    drawBarChart(data);
+    // drawBarChart(data);
     // drawSunburstChart(data);
     drawLineChartByAgeAndGender(data);
     drawStressBubbleChart(data)
@@ -573,88 +573,88 @@ function drawJobBarChart(data, xAxisField1, xAxisField2) {
 }
 
 // Function to draw the gender distribution bar chart based on years of experience
-function drawBarChart(data) {
-  const groupedData = d3.group(data, d => d.Years_of_Experience);
+// function drawBarChart(data) {
+//   const groupedData = d3.group(data, d => d.Years_of_Experience);
 
-  const yearsExperience = Array.from(groupedData.keys());
+//   const yearsExperience = Array.from(groupedData.keys());
 
-  let femaleCounts = [];
-  let maleCounts = [];
-  let nonBinaryCounts = [];
-  let preferNotToSayCounts = [];
+//   let femaleCounts = [];
+//   let maleCounts = [];
+//   let nonBinaryCounts = [];
+//   let preferNotToSayCounts = [];
 
-  yearsExperience.forEach(year => {
-    const yearData = groupedData.get(year) || [];
+//   yearsExperience.forEach(year => {
+//     const yearData = groupedData.get(year) || [];
 
-    let femaleCount = 0;
-    let maleCount = 0;
-    let nonBinaryCount = 0;
-    let preferNotToSayCount = 0;
+//     let femaleCount = 0;
+//     let maleCount = 0;
+//     let nonBinaryCount = 0;
+//     let preferNotToSayCount = 0;
 
-    yearData.forEach(d => {
-      switch (d.Gender) {
-        case 'Female':
-          femaleCount++;
-          break;
-        case 'Male':
-          maleCount++;
-          break;
-        case 'Non-binary':
-          nonBinaryCount++;
-          break;
-        case 'Prefer not to say':
-          preferNotToSayCount++;
-          break;
-      }
-    });
+//     yearData.forEach(d => {
+//       switch (d.Gender) {
+//         case 'Female':
+//           femaleCount++;
+//           break;
+//         case 'Male':
+//           maleCount++;
+//           break;
+//         case 'Non-binary':
+//           nonBinaryCount++;
+//           break;
+//         case 'Prefer not to say':
+//           preferNotToSayCount++;
+//           break;
+//       }
+//     });
 
-    femaleCounts.push(femaleCount);
-    maleCounts.push(maleCount);
-    nonBinaryCounts.push(nonBinaryCount);
-    preferNotToSayCounts.push(preferNotToSayCount);
-  });
+//     femaleCounts.push(femaleCount);
+//     maleCounts.push(maleCount);
+//     nonBinaryCounts.push(nonBinaryCount);
+//     preferNotToSayCounts.push(preferNotToSayCount);
+//   });
 
-  const femaleTrace = {
-    x: yearsExperience,
-    y: femaleCounts,
-    name: 'Female',
-    type: 'bar',
-    marker: { color: '#1f77b4' }
-  };
+//   const femaleTrace = {
+//     x: yearsExperience,
+//     y: femaleCounts,
+//     name: 'Female',
+//     type: 'bar',
+//     marker: { color: '#1f77b4' }
+//   };
 
-  const maleTrace = {
-    x: yearsExperience,
-    y: maleCounts,
-    name: 'Male',
-    type: 'bar',
-    marker: { color: '#ff7f0e' }
-  };
+//   const maleTrace = {
+//     x: yearsExperience,
+//     y: maleCounts,
+//     name: 'Male',
+//     type: 'bar',
+//     marker: { color: '#ff7f0e' }
+//   };
 
-  const nonBinaryTrace = {
-    x: yearsExperience,
-    y: nonBinaryCounts,
-    name: 'Non-binary',
-    type: 'bar',
-    marker: { color: '#2ca02c' }
-  };
+//   const nonBinaryTrace = {
+//     x: yearsExperience,
+//     y: nonBinaryCounts,
+//     name: 'Non-binary',
+//     type: 'bar',
+//     marker: { color: '#2ca02c' }
+//   };
 
-  const preferNotToSayTrace = {
-    x: yearsExperience,
-    y: preferNotToSayCounts,
-    name: 'Prefer not to say',
-    type: 'bar',
-    marker: { color: '#d62728' }
-  };
+//   const preferNotToSayTrace = {
+//     x: yearsExperience,
+//     y: preferNotToSayCounts,
+//     name: 'Prefer not to say',
+//     type: 'bar',
+//     marker: { color: '#d62728' }
+//   };
 
-  const layout = {
-    title: 'Years of Experience vs Gender Distribution',
-    xaxis: { title: 'Years of Experience' },
-    yaxis: { title: 'Count of Employees' },
-    barmode: 'group'
-  };
+//   const layout = {
+//     title: 'Years of Experience vs Gender Distribution',
+//     xaxis: { title: 'Years of Experience' },
+//     yaxis: { title: 'Count of Employees' },
+//     barmode: 'group'
+//   };
 
-  Plotly.newPlot('bar-chart', [femaleTrace, maleTrace, nonBinaryTrace, preferNotToSayTrace], layout);
-}
+//   Plotly.newPlot('bar-chart', [femaleTrace, maleTrace, nonBinaryTrace, preferNotToSayTrace], layout);
+// }
 
 
 // Function to draw the Sunburst chart
