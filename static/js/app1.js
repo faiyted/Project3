@@ -145,64 +145,184 @@ function drawBarChart(data) {
     Plotly.newPlot('bar-chart', traces, layout);
 }
 
+// function drawPolarAreaChart(data) {
+//     // Calculate the averages for the factors
+//     const experience = data.map(d => parseFloat(d.Years_of_Experience || 0)); // Years of Experience
+//   const hoursWorked = data.map(d => parseFloat(d.Hours_Worked_Per_Week || 0)); // Hours Worked Per Week
+//   const workLifeBalance = data.map(d => d.Work_Life_Balance_Rating); // Work Life Balance Rating
 
-function drawSunburstChart(data) {
-    // Preprocess data to create hierarchical structure for Sunburst
-    let labels = [];
-    let parents = [];
-    let values = [];
     
+
+//     // Define the categories (factors) and their average values
+//     const categories = ['Years of Experience', 'Hours Worked per Week', 'Work Life Balance Rating'];
+//     const values = [experience, hoursWorked, workLifeBalance];
+
+    
+
+function drawHeatMap(data) {
     // Group data by "Years of Experience"
     const experienceGroups = d3.group(data, d => d.Years_of_Experience);
 
-    experienceGroups.forEach((groupData, experience) => {
-        const experienceLabel = `${experience} Years of Experience`;
-        labels.push(experienceLabel);
-        parents.push('');
-        values.push(groupData.length);
+    // Get unique categories for x (Years of Experience) and y (Hours Worked Per Week)
+    const xCategories = Array.from(new Set(data.map(d => d.Years_of_Experience))).sort((a, b) => a - b); // Sorting numerically
+    const yCategories = Array.from(new Set(data.map(d => d.Hours_Worked_Per_Week))).sort((a, b) => a - b);
 
-        // Group within experience by "Hours Worked Per Week"
-        const hoursGroups = d3.group(groupData, d => d.Hours_Worked_Per_Week);
+    // Initialize a 2D array to hold the z-values (average Work-Life Balance Rating)
+    let zValues = Array(yCategories.length).fill().map(() => Array(xCategories.length).fill(0));
 
-        hoursGroups.forEach((subGroupData, hours) => {
-            const hoursLabel = `${hours} Hours/Week (${experience} Years)`;
-            labels.push(hoursLabel);
-            parents.push(experienceLabel);
-            values.push(subGroupData.length);
+    // Populate the zValues array with the average Work Life Balance Rating
+    xCategories.forEach((experience, xIndex) => {
+        const experienceGroup = experienceGroups.get(experience) || [];
 
-            // Further group by "Work-Life Balance Rating"
-            const balanceGroups = d3.group(subGroupData, d => d.Work_Life_Balance_Rating);
+        // Group within "Years of Experience" by "Hours Worked Per Week"
+        const hoursGroups = d3.group(experienceGroup, d => d.Hours_Worked_Per_Week);
 
-            balanceGroups.forEach((finalGroupData, balance) => {
-                const balanceLabel = `Work-Life Balance: ${balance} (${hours} Hours/${experience} Years)`;
-                labels.push(balanceLabel);
-                parents.push(hoursLabel);
-                values.push(finalGroupData.length);
-            });
+        yCategories.forEach((hours, yIndex) => {
+            const hoursGroup = hoursGroups.get(hours) || [];
+
+            if (hoursGroup.length > 0) {
+                // Calculate the average "Work Life Balance Rating" for each combination of Years of Experience and Hours Worked Per Week
+                const avgBalance = d3.mean(hoursGroup, d => d.Work_Life_Balance_Rating);
+                zValues[yIndex][xIndex] = avgBalance;
+            }
         });
     });
 
-    // Data for Sunburst chart
+    // Create the heatmap trace
     const trace = {
-        type: 'sunburst',
-        labels: labels,
-        parents: parents,
-        values: values,
-        leaf: { opacity: 0.6 },
-        marker: { line: { width: 2 } },
-        branchvalues: 'total' // Ensure correct hierarchy visualization
+        z: zValues,
+        x: xCategories,
+        y: yCategories,
+        type: 'heatmap',
+        colorscale: 'Viridis'
     };
 
-    // Layout for the chart
+    // Define the layout for the heatmap
     const layout = {
-        title: 'Sunburst Chart: Experience, Hours Worked, and Work-Life Balance',
-        width: 900,
-        height: 900
+        title: 'Heatmap: Experience, Hours Worked, and Work-Life Balance',
+        xaxis: { title: 'Years of Experience' },
+        yaxis: { title: 'Hours Worked Per Week' },
+        width: 800,
+        height: 600
     };
 
-    // Plot the Sunburst chart using Plotly
-    Plotly.newPlot('sunburst-chart', [trace], layout);
+    // Plot the heatmap using Plotly
+    Plotly.newPlot('heatmap-chart', [trace], layout);
 }
+  
+  
+ 
+  
+  
+  
+// function drawScatterPlots(data) {
+//     // Group data by Work_Life_Balance_Rating
+//     const groupedData = d3.group(data, d => d.Work_Life_Balance_Rating);
+
+//     // Create a subplot for each Work_Life_Balance_Rating
+//     groupedData.forEach((values, key) => {
+//         // Create a container for each rating
+//         const svg = d3.select("body").append("svg")
+//             .attr("width", 400)
+//             .attr("height", 400)
+//             .append("g");
+
+//         // Set up scales
+//         const xScale = d3.scaleLinear()
+//             .domain([d3.min(values, d => d.Years_of_Experience), d3.max(values, d => d.Years_of_Experience)])
+//             .range([40, 360]);
+
+//         const yScale = d3.scaleLinear()
+//             .domain([d3.min(values, d => d.Hours_Worked_Per_Week), d3.max(values, d => d.Hours_Worked_Per_Week)])
+//             .range([360, 40]);
+
+//         // Add axes
+//         svg.append("g")
+//             .attr("transform", "translate(0,360)")
+//             .call(d3.axisBottom(xScale));
+
+//         svg.append("g")
+//             .attr("transform", "translate(40,0)")
+//             .call(d3.axisLeft(yScale));
+
+//         // Add scatter plot points
+//         svg.selectAll("circle")
+//             .data(values)
+//             .enter()
+//             .append("circle")
+//             .attr("cx", d => xScale(d.Years_of_Experience))
+//             .attr("cy", d => yScale(d.Hours_Worked_Per_Week))
+//             .attr("r", 5)
+//             .style("fill", d => colors[d.Job_Role]);
+
+//         // Add title for each subplot
+//         svg.append("text")
+//             .attr("x", 200)
+//             .attr("y", 20)
+//             .attr("text-anchor", "middle")
+//             .text(`Work-Life Balance Rating: ${key}`);
+//     });
+    
+// }
+// function drawSunburstChart(data) {
+//     // Preprocess data to create hierarchical structure for Sunburst
+//     let labels = [];
+//     let parents = [];
+//     let values = [];
+    
+//     // Group data by "Years of Experience"
+//     const experienceGroups = d3.group(data, d => d.Years_of_Experience);
+
+//     experienceGroups.forEach((groupData, experience) => {
+//         const experienceLabel = `${experience} Years of Experience`;
+//         labels.push(experienceLabel);
+//         parents.push('');
+//         values.push(groupData.length);
+
+//         // Group within experience by "Hours Worked Per Week"
+//         const hoursGroups = d3.group(groupData, d => d.Hours_Worked_Per_Week);
+
+//         hoursGroups.forEach((subGroupData, hours) => {
+//             const hoursLabel = `${hours} Hours/Week (${experience} Years)`;
+//             labels.push(hoursLabel);
+//             parents.push(experienceLabel);
+//             values.push(subGroupData.length);
+
+//             // Further group by "Work-Life Balance Rating"
+//             const balanceGroups = d3.group(subGroupData, d => d.Work_Life_Balance_Rating);
+
+//             balanceGroups.forEach((finalGroupData, balance) => {
+//                 const balanceLabel = `Work-Life Balance: ${balance} (${hours} Hours/${experience} Years)`;
+//                 labels.push(balanceLabel);
+//                 parents.push(hoursLabel);
+//                 values.push(finalGroupData.length);
+//             });
+//         });
+//     });
+
+   
+    
+//     // Data for Sunburst chart
+//     const trace = {
+//         type: 'sunburst',
+//         labels: labels,
+//         parents: parents,
+//         values: values,
+//         leaf: { opacity: 0.6 },
+//         marker: { line: { width: 2 } },
+//         branchvalues: 'total' // Ensure correct hierarchy visualization
+//     };
+
+//     // Layout for the chart
+//     const layout = {
+//         title: 'Sunburst Chart: Experience, Hours Worked, and Work-Life Balance',
+//         width: 900,
+//         height: 900
+//     };
+
+//     // Plot the Sunburst chart using Plotly
+//     Plotly.newPlot('sunburst-chart', [trace], layout);
+// }
 
 
 
@@ -212,7 +332,8 @@ d3.json('../cleanDataset.json')
     .then(data => {
         drawChart(data, 'Industry', 'Job_Role');
         drawBarChart(data); 
-        drawSunburstChart(data);
+        drawHeatMap(data);
+        // drawSunburstChart(data);
 
         
     })
