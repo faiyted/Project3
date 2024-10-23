@@ -56,16 +56,11 @@ The distribution of mental health conditions appears to be relatively consistent
 By comparing the heights of the bars, one can identify which job roles are most common within each industry, as well as which industries have the most diverse job roles. the data highlights trends that reflect industry needs in both human resources and technical capabilities, with certain roles like Software Engineers and Data Scientists becoming essential across a variety of sectors.
 
 ![image](https://github.com/user-attachments/assets/859c2d22-6325-4b90-9528-ca0ffc92991d)
-### Years of Experience by age and gender General Trends:
-As individuals age, total experience tends to increase, particularly for females in the younger age groups.
-Males have consistently higher average experience at younger ages, but this trend appears to shift as they age, particularly in the 46-55 age group where females surpass them.
-Experience Distribution:
-The highest total experiences are found in the 26-35 age group, indicating a peak work experience level during these years.
-In older age groups, experience levels drop, likely reflecting retirement trends and reduced workforce participation.
-Gender Comparisons:
-Females tend to have slightly lower total experiences in the youngest age group, but their averages rise significantly in the older age brackets.
-Males generally have higher total experience in the early years but see a decline relative to females as age increases.
-This summary highlights key patterns in work experience across different age groups and genders, offering insights into career progression and workforce dynamics.
+### Hours worked per week by age and gender General Trends:
+Across all age groups, males generally work more hours per week than females, non-binary individuals, or those who prefer not to disclose their gender.
+The average hours worked tends to be highest in the 26-35 age group, particularly for non-binary individuals and males.
+The differences in hours worked by gender suggest potential disparities in employment patterns, roles, or societal expectations regarding work-life balance.
+As individuals age, the average hours worked remains relatively stable, indicating consistency in work engagement as they progress through their careers.
 ### High Stress Level by Age Range
 The analysis reveals that stress is particularly high among individuals aged 26-45, highlighting a critical period in life where work, family, and personal development intersect. <br>
 Understanding these trends allows organizations and individuals to take targeted action to mitigate stress, especially for those in the peak of their careers, while recognizing that stress often decreases with age or retirement.
