@@ -21,8 +21,6 @@ Understanding these trends allows organizations and individuals to take targeted
 This grouped bar chart shows the relationship between access to mental health resources, physical activity, and mental health conditions like Depression, Anxiety, None, and Burnout. The chart reveals that:
 Those with anxiety and depression tend to engage more in daily activities when access to resources is available.
 Burnout cases have a more evenly distributed engagement across different physical activity levels, regardless of access to mental health resources.
-### Stress level associated with hours work and virtual meetings
-This chart visualizes the relationship between hours worked per week and the number of virtual meetings, with bubble sizes and colors indicating stress levels. Larger, darker bubbles represent higher stress levels. The distribution shows that employees with high hours worked and frequent virtual meetings are more likely to report higher stress, indicated by the darker colors and larger bubbles.
 ## Stress level associated with hours work and virtual meetings
 This bubble chart shows the relationship between hours worked per week and virtual meetings, with stress levels represented by bubble size and color. Larger, darker bubbles indicate higher stress, while smaller, lighter bubbles show lower stress. Employees with longer hours and more meetings tend to experience higher stress, while lower stress is more spread among those with fewer work hours or meetings. The chart highlights how a heavier workload and frequent meetings are linked to increased stress.
 ## References to any code that is not your own:
