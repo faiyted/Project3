@@ -36,9 +36,9 @@ d3.json('/mongo_data')
     mentalPhy(data);
     drawJobBarChart(data, 'Industry', 'Job_Role');
     drawBarChart(data);
-    drawSunburstChart(data);
+    // drawSunburstChart(data);
     drawLineChartByAgeAndGender(data);
-    
+    drawStressBubbleChart(data)
 
 
     // Add event listeners to each dropdown
@@ -659,56 +659,56 @@ function drawBarChart(data) {
 
 
 // Function to draw the Sunburst chart
-function drawSunburstChart(data) {
-  let labels = [];
-  let parents = [];
-  let values = [];
+// function drawSunburstChart(data) {
+//   let labels = [];
+//   let parents = [];
+//   let values = [];
 
-  const experienceGroups = d3.group(data, d => d.Years_of_Experience);
+//   const experienceGroups = d3.group(data, d => d.Years_of_Experience);
 
-  experienceGroups.forEach((groupData, experience) => {
-    const experienceLabel = `${experience} Years of Experience`;
-    labels.push(experienceLabel);
-    parents.push('');
-    values.push(groupData.length);
+//   experienceGroups.forEach((groupData, experience) => {
+//     const experienceLabel = `${experience} Years of Experience`;
+//     labels.push(experienceLabel);
+//     parents.push('');
+//     values.push(groupData.length);
 
-    const hoursGroups = d3.group(groupData, d => d.Hours_Worked_Per_Week);
+//     const hoursGroups = d3.group(groupData, d => d.Hours_Worked_Per_Week);
 
-    hoursGroups.forEach((subGroupData, hours) => {
-      const hoursLabel = `${hours} Hours/Week (${experience} Years)`;
-      labels.push(hoursLabel);
-      parents.push(experienceLabel);
-      values.push(subGroupData.length);
+//     hoursGroups.forEach((subGroupData, hours) => {
+//       const hoursLabel = `${hours} Hours/Week (${experience} Years)`;
+//       labels.push(hoursLabel);
+//       parents.push(experienceLabel);
+//       values.push(subGroupData.length);
 
-      const balanceGroups = d3.group(subGroupData, d => d.Work_Life_Balance_Rating);
+//       const balanceGroups = d3.group(subGroupData, d => d.Work_Life_Balance_Rating);
 
-      balanceGroups.forEach((finalGroupData, balance) => {
-        const balanceLabel = `Work-Life Balance: ${balance} (${hours} Hours/${experience} Years)`;
-        labels.push(balanceLabel);
-        parents.push(hoursLabel);
-        values.push(finalGroupData.length);
-      });
-    });
-  });
+//       balanceGroups.forEach((finalGroupData, balance) => {
+//         const balanceLabel = `Work-Life Balance: ${balance} (${hours} Hours/${experience} Years)`;
+//         labels.push(balanceLabel);
+//         parents.push(hoursLabel);
+//         values.push(finalGroupData.length);
+//       });
+//     });
+//   });
 
-  const trace = {
-    type: 'sunburst',
-    labels: labels,
-    parents: parents,
-    values: values,
-    leaf: { opacity: 0.6 },
-    marker: { line: { width: 2 } },
-    branchvalues: 'total'
-  };
+//   const trace = {
+//     type: 'sunburst',
+//     labels: labels,
+//     parents: parents,
+//     values: values,
+//     leaf: { opacity: 0.6 },
+//     marker: { line: { width: 2 } },
+//     branchvalues: 'total'
+//   };
 
-  const layout = {
-    title: 'Sunburst Chart: Experience, Hours Worked, and Work-Life Balance',
-    width: 1000,
-    height: 1000
-  };
+//   const layout = {
+//     title: 'Sunburst Chart: Experience, Hours Worked, and Work-Life Balance',
+//     width: 1000,
+//     height: 1000
+//   };
 
-  Plotly.newPlot('sunburst-chart', [trace], layout);
-}
+//   Plotly.newPlot('sunburst-chart', [trace], layout);
+// }
 // *** END OF YILING ***
 function drawLineChartByAgeAndGender(data) {
     // Function to categorize age into ranges
@@ -770,4 +770,54 @@ function drawLineChartByAgeAndGender(data) {
   
     // Plot the line chart
     Plotly.newPlot('line-chart', traces, layout);
+  }
+
+  function drawStressBubbleChart(data) {
+    // Extract data for plot
+    const virtualMeetings = data.map(d => d.Number_of_Virtual_Meetings);
+    const hoursWorked = data.map(d => d.Hours_Worked_Per_Week);
+    const stressLevels = data.map(d => {
+      switch (d.Stress_Level) {
+        case 'Low': return 1;
+        case 'Medium': return 2;
+        case 'High': return 3;
+        default: return 0; // Handle missing/unknown stress levels
+      }
+    });
+    
+    const stressLabels = data.map(d => d.Stress_Level);
+  
+    // Define the trace for the bubble chart
+    const trace = {
+      x: virtualMeetings,
+      y: hoursWorked,
+      mode: 'markers',
+      marker: {
+        size: stressLevels.map(level => level * 15),  // Scale marker size by stress level
+        color: stressLevels,  // Color by stress level
+        colorscale: 'YlOrRd',  // Color scale from yellow to red (low to high stress)
+        showscale: true,  // Display color scale
+        colorbar: {
+          title: 'Stress Levels',
+          tickvals: [1, 2, 3],
+          ticktext: ['Low', 'Medium', 'High']
+        }
+      },
+      text: stressLabels,  // Hover text will show stress level
+      hovertemplate: 
+        'Virtual Meetings: %{x}<br>' + 
+        'Hours Worked: %{y}<br>' + 
+        'Stress Level: %{text}<extra></extra>'
+    };
+  
+    // Define the layout for the bubble chart
+    const layout = {
+      title: 'Stress Levels by Hours Worked and Virtual Meetings',
+      xaxis: { title: 'Number of Virtual Meetings' },
+      yaxis: { title: 'Hours Worked per Week' },
+      hovermode: 'closest'  // Enable hover interaction
+    };
+  
+    // Render the plot
+    Plotly.newPlot('bubble-chart', [trace], layout);
   }
