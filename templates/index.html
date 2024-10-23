@@ -5,8 +5,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Project3</title>
-  <link rel="stylesheet" href="static/css/style.css">
+  <title>Remote Work & Mental Health Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 </head>
@@ -20,12 +20,14 @@
     </div>
     <div class="row p-3">
       <div>
-        <h5 class="text-center">Industry Insights and the relationships with mental health, regions, and work locations.</h5>
+        <h5 class="text-center">Industry Insights and the relationships with mental health, regions, and work locations.
+        </h5>
       </div>
     </div>
     <div class="row">
       <div class="filters-container">
         <div class="filter-row d-flex justify-content-around">
+          <!-- Filters for Circular and Bar Charts -->
           <div>
             <label for="regionFilter">Region:</label>
             <select id="regionFilter">
@@ -49,6 +51,15 @@
         </div>
       </div>
       <div id="chart"></div>
+      <div class="text-center">
+        <b>Mental Health by Region and Industry:</b><br>
+        Africa: High rates of depression in healthcare and burnout in education.<br>
+        Asia: High anxiety in retail and burnout in finance.<br>
+        Europe: IT has significant levels of burnout and depression.<br>
+        North America: Retail sees more cases of anxiety, while education has higher burnout.<br>
+        Oceania: Finance shows high burnout and depression.<br>
+        South America: Finance sees high anxiety and depression.<br>
+      </div>
     </div>
 
     <br><br><br>
@@ -57,20 +68,18 @@
       <b>Summary</b><br>
       Satisfaction is slightly higher for onsite workers compared to hybrid and remote.<br>
       Remote work has a lower satisfaction rate, with higher percentages in the Neutral and Unsatisfied categories.<br>
-      Hybrid work shows a fairly even distribution, with no dominant satisfaction level, which might suggest that hybrid work arrangements cater to a wide range of experiences.
+      Hybrid work shows a fairly even distribution, with no dominant satisfaction level.<br>
     </div>
     <br><br><br>
 
     <div id="hours-mental-chart" style="width: 100%; height: 600px;"></div>
     <div id="summary2" class="mt-2 text-center">
       <b>Summary</b><br>
-      Anxiety, Total Hours: 50363, Average Hours: 39.41, Count: 1278<br>
-      Burnout, Total Hours: 51240, Average Hours: 40.03, Count: 1280<br>
-      Depression, Total Hours: 49378, Average Hours: 39.63, Count: 1246<br>
-      None, Total Hours: 47092, Average Hours: 39.37, Count: 1196<br>
-      Employees experiencing burnout not only have the highest total hours but also the highest average hours worked per week, indicating a possible link between overwork and burnout symptoms.<br>
-      Those experiencing anxiety and depression report slightly lower average hours worked compared to the burnout group, but still more than those with no reported mental health issues.<br>
-      Interestingly, employees without any reported mental health conditions have both the lowest total and average hours worked per week, which might suggest better work-life balance or less workload.
+      Anxiety: Total Hours: 50363, Average Hours: 39.41, Count: 1278<br>
+      Burnout: Total Hours: 51240, Average Hours: 40.03, Count: 1280<br>
+      Depression: Total Hours: 49378, Average Hours: 39.63, Count: 1246<br>
+      None: Total Hours: 47092, Average Hours: 39.37, Count: 1196<br>
+      Employees experiencing burnout have the highest average hours worked, indicating a link between overwork and burnout.<br>
     </div>
     <br><br><br>
 
@@ -82,33 +91,35 @@
     <br><br><br>
     <div id="bar-chart" style="width: 100%; height: 600px;"></div>
     <br><br><br>
-    <div id="sunburst-chart" style="width: 100%; height: 1000px;"></div>
+    <div id="line-chart"></div>
+    <br><br><br>
+    <div id="sunburst-chart"></div>
     <br><br><br>
     <div id="mental-health-chart" style="width: 100%; height: 600px;"></div>
     <br><br><br>
     <div id="productivity-change-chart" style="width: 100%; height: 600px;"></div>
     <br><br><br>
 
-    <!-- Bubble Chart Filters -->
+    <!-- Bubble Chart Filters Section (Separate IDs for Bubble Chart) -->
     <div class="filters-container">
       <div class="filter-row d-flex justify-content-around">
         <div>
-          <label for="stressLevelFilter">Stress Level:</label>
-          <select id="stressLevelFilter">
+          <label for="bubbleStressLevelFilter">Stress Level:</label>
+          <select id="bubbleStressLevelFilter">
             <option value="">All Stress Levels</option>
           </select>
         </div>
 
         <div>
-          <label for="hoursWorkedFilter">Hours Worked:</label>
-          <select id="hoursWorkedFilter">
+          <label for="bubbleHoursWorkedFilter">Hours Worked:</label>
+          <select id="bubbleHoursWorkedFilter">
             <option value="">All Hours Worked</option>
           </select>
         </div>
 
         <div>
-          <label for="virtualMeetingsFilter">Virtual Meetings:</label>
-          <select id="virtualMeetingsFilter">
+          <label for="bubbleVirtualMeetingsFilter">Virtual Meetings:</label>
+          <select id="bubbleVirtualMeetingsFilter">
             <option value="">All Virtual Meetings</option>
           </select>
         </div>
@@ -120,8 +131,6 @@
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-
 </body>
 
 </html>
