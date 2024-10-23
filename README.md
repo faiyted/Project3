@@ -1,9 +1,15 @@
-# Project3
+# Project 3 - Remote Work & Mental Health
 
 # Overview:
 “As remote work becomes the new norm, it's essential to understand its impact on employees' mental well-being. This dataset dives into how working remotely affects stress levels, work-life balance, and mental health conditions across various industries and regions.
 With 5,000 records collected from employees worldwide, this dataset provides valuable insights into key areas like work location (remote, hybrid, onsite), stress levels, access to mental health resources, and job satisfaction. It’s designed to help researchers, HR professionals, and businesses assess the growing influence of remote work on productivity and well-being. 🌿📈”<br>
 https://www.kaggle.com/datasets/waqi786/remote-work-and-mental-health
+## Team Members:
+- Laura Sunley
+- Logan Chancellor-Gonzales
+- Susan Lin
+- Xian Sheng
+- Yiling Chen
 
 ## Instructions:
 Pending
@@ -17,5 +23,9 @@ Overall, while all groups are close to a standard 40-hour workweek, there is a s
 ### High Stress Level by Age Range
 The analysis reveals that stress is particularly high among individuals aged 26-45, highlighting a critical period in life where work, family, and personal development intersect. <br>
 Understanding these trends allows organizations and individuals to take targeted action to mitigate stress, especially for those in the peak of their careers, while recognizing that stress often decreases with age or retirement.
-## References to any code that is not your own:
-Pending
+### Industry Benefits from Remote Work
+Consulting and IT industries benefit the most from remote work in terms of satisfaction, with the majority of employees in remote setups being satisfied compared to hybrid and onsite
+### Impact of Work Location on Mental Health
+Remote work shows slightly higher instances of anxiety and burnout, but also more individuals with no mental health conditions.
+Onsite work has a lower prevalence of "None" in terms of mental health conditions, with higher rates of burnout.
+
