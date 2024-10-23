@@ -17,5 +17,17 @@ Overall, while all groups are close to a standard 40-hour workweek, there is a s
 ### High Stress Level by Age Range
 The analysis reveals that stress is particularly high among individuals aged 26-45, highlighting a critical period in life where work, family, and personal development intersect. <br>
 Understanding these trends allows organizations and individuals to take targeted action to mitigate stress, especially for those in the peak of their careers, while recognizing that stress often decreases with age or retirement.
+### Access to mental health resources, company support, and physical activity compared to mental health condition
+This grouped bar chart shows the relationship between access to mental health resources, physical activity, and mental health conditions like Depression, Anxiety, None, and Burnout. The chart reveals that:
+Those with anxiety and depression tend to engage more in daily activities when access to resources is available.
+Burnout cases have a more evenly distributed engagement across different physical activity levels, regardless of access to mental health resources.
+### Work location versus productivity change
+This stacked bar chart compares the productivity change (Increase, Decrease, or No Change) across three different work locations: Remote, Hybrid, and Onsite. It highlights that:
+Onsite and Remote workers have slightly higher rates of productivity increase compared to Hybrid workers.
+Decreases in productivity are most common among Hybrid workers.
+The "No Change" category is fairly balanced across all work locations, with Remote having the highest percentage (33.1%).
+### Stress level associated with hours work and virtual meetings
+This chart visualizes the relationship between hours worked per week and the number of virtual meetings, with bubble sizes and colors indicating stress levels. Larger, darker bubbles represent higher stress levels. The distribution shows that employees with high hours worked and frequent virtual meetings are more likely to report higher stress, indicated by the darker colors and larger bubbles.
+
 ## References to any code that is not your own:
 Pending
