@@ -760,9 +760,9 @@ function drawLineChartByAgeAndGender(data) {
   
     // Layout configuration for Plotly
     const layout = {
-      title: 'Average Years of Experience by Age Range and Gender',
+      title: 'Average Hours Worked per Week by Age Range and Gender',
       xaxis: { title: 'Age Range' },
-      yaxis: { title: 'Average Years of Experience' },
+      yaxis: { title: 'Average Hours Worked' },
       grid: true
     };
   
