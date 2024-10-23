@@ -364,7 +364,7 @@ function renderStackedBarChartForPhysicalActivity(data) {
     // Count the number of each sleep quality level within the physical activity category
     categoryData.forEach(d => {
       const sleepQuality = parseInt(d.Sleep_Quality, 10);  // Ensure Sleep_Quality is an integer
-      if (d.Sleep_Quality === '0' || d.Sleep_Quality === 'None') {
+      if (d.Sleep_Quality === 0) {
         poorCount++;
       } else if (sleepQuality === 1) {
         averageCount++;
