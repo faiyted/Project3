@@ -43,7 +43,7 @@ Hybrid work shows a fairly even distribution, with no dominant satisfaction leve
 ### Average Hours Worked by Mental Health Condition
 Overall, while all groups are close to a standard 40-hour workweek, there is a slight trend where increasing hours align with mental health challenges, with burnout showing the highest hours worked. <br>This points to the importance of monitoring workloads and ensuring resources are available to help manage mental health, especially as hours begin to exceed the standard 40-hour mark.
 
-![image](https://github.com/user-attachments/assets/208f77ed-ebba-49bf-8a6c-828884af08d5)
+![image](https://github.com/user-attachments/assets/eca4b763-3d80-4c30-84b9-2459696b15a0)
 ### Physical activity vs Sleep quality
  I analyzed the physical activity and sleep quality of 5,000 people. Based on this chart, there doesn’t seem to be a significant difference in sleep quality based on physical activity levels (weekly, none, daily), as most people fall under either the ‘Good’ or ‘Average’ sleep quality categories across all levels of physical activity.
 
