@@ -1,30 +1,30 @@
 // Fetch and process the MongoDB data
 d3.json('/mongo_data')
   .then(mongoData => {
-    // Map MongoDB data to include all fields you might need
+    // Map MongoDB data to include all fields with proper integer and string handling
     const data = mongoData.map(d => ({
-      Productivity_Change: d.Productivity_Change || 'None',
-      Industry: d.Industry || 'None',
-      Physical_Activity: d.Physical_Activity || 'None',
-      Access_to_Mental_Health_Resources: d.Access_to_Mental_Health_Resources || 'None',
-      Job_Role: d.Job_Role || 'None',
-      Hours_Worked_Per_Week: d.Hours_Worked_Per_Week || 'None',
-      Work_Location: d.Work_Location || 'None',
-      Employee_ID: d.Employee_ID || 'None',
-      Number_of_Virtual_Meetings: d.Number_of_Virtual_Meetings || 'None',
-      Stress_Level: d.Stress_Level || 'None',
-      Mental_Health_Condition: d.Mental_Health_Condition || 'None',
-      _id: d._id || 'None',
-      Sleep_Quality: parseInt(d.Sleep_Quality, 10) || 'None',
-      Company_Support_for_Remote_Work: d.Company_Support_for_Remote_Work || 'None',
-      Work_Life_Balance_Rating: d.Work_Life_Balance_Rating || 'None',
-      Social_Isolation_Rating: d.Social_Isolation_Rating || 'None',
-      Region: d.Region || 'None',
-      Gender: d.Gender || 'None',
-      Satisfaction_with_Remote_Work: d.Satisfaction_with_Remote_Work || 'None',
-      Age: d.Age || 'None',
-      Years_of_Experience: parseFloat(d.Years_of_Experience) || 0,
-      Value: d.Value || 1  // Replace `Value` with the appropriate field if needed
+      Productivity_Change: d.Productivity_Change || 'None',  // String
+      Industry: d.Industry || 'None',  // String
+      Physical_Activity: d.Physical_Activity || 'None',  // String
+      Access_to_Mental_Health_Resources: d.Access_to_Mental_Health_Resources || 'None',  // String
+      Job_Role: d.Job_Role || 'None',  // String
+      Hours_Worked_Per_Week: parseInt(d.Hours_Worked_Per_Week, 10) || 0,  // Integer
+      Work_Location: d.Work_Location || 'None',  // String
+      Employee_ID: d.Employee_ID || 'None',  // String
+      Number_of_Virtual_Meetings: parseInt(d.Number_of_Virtual_Meetings, 10) || 0,  // Integer
+      Stress_Level: parseInt(d.Stress_Level, 10) || 0,  // Integer
+      Mental_Health_Condition: d.Mental_Health_Condition || 'None',  // String
+      _id: d._id || 'None',  // String
+      Sleep_Quality: parseInt(d.Sleep_Quality, 10) || 0,  // Integer
+      Company_Support_for_Remote_Work: d.Company_Support_for_Remote_Work || 'None',  // String
+      Work_Life_Balance_Rating: parseInt(d.Work_Life_Balance_Rating, 10) || 0,  // Integer
+      Social_Isolation_Rating: parseInt(d.Social_Isolation_Rating, 10) || 0,  // Integer
+      Region: d.Region || 'None',  // String
+      Gender: d.Gender || 'None',  // String
+      Satisfaction_with_Remote_Work: parseInt(d.Satisfaction_with_Remote_Work, 10) || 0,  // Integer
+      Age: parseInt(d.Age, 10) || 0,  // Integer
+      Years_of_Experience: parseInt(d.Years_of_Experience, 10) || 0,  // Integer
+      Value: d.Value || 1  // Default value, adjust as necessary
     }));
 
     console.log("MongoDB Data:", data);
