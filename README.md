@@ -37,4 +37,7 @@ Consulting and IT industries benefit the most from remote work in terms of satis
 ### Impact of Work Location on Mental Health
 Remote work shows slightly higher instances of anxiety and burnout, but also more individuals with no mental health conditions.
 Onsite work has a lower prevalence of "None" in terms of mental health conditions, with higher rates of burnout.
+### Stress level associated with hours work and virtual meetings
+This bubble chart shows the relationship between hours worked per week and virtual meetings, with stress levels represented by bubble size and color. Larger, darker bubbles indicate higher stress, while smaller, lighter bubbles show lower stress. Employees with longer hours and more meetings tend to experience higher stress, while lower stress is more spread among those with fewer work hours or meetings. The chart highlights how a heavier workload and frequent meetings are linked to increased stress.
+
 
