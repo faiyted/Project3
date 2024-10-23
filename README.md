@@ -55,7 +55,7 @@ The distribution of mental health conditions appears to be relatively consistent
 ###  Job_Role and Industry
 By comparing the heights of the bars, one can identify which job roles are most common within each industry, as well as which industries have the most diverse job roles. the data highlights trends that reflect industry needs in both human resources and technical capabilities, with certain roles like Software Engineers and Data Scientists becoming essential across a variety of sectors.
 
-![image](https://github.com/user-attachments/assets/3a5e0b08-82ee-44de-a4f3-6b18ba6275e5)
+![image](https://github.com/user-attachments/assets/e6103016-0529-4ab9-88c5-43910bd761ce)
 ### Years of Experience by age and gender General Trends:
 As individuals age, total experience tends to increase, particularly for females in the younger age groups.
 Males have consistently higher average experience at younger ages, but this trend appears to shift as they age, particularly in the 46-55 age group where females surpass them.
@@ -75,4 +75,6 @@ Understanding these trends allows organizations and individuals to take targeted
 This bubble chart shows the relationship between hours worked per week and virtual meetings, with stress levels represented by bubble size and color. Larger, darker bubbles indicate higher stress, while smaller, lighter bubbles show lower stress. Employees with longer hours and more meetings tend to experience higher stress, while lower stress is more spread among those with fewer work hours or meetings. The chart highlights how a heavier workload and frequent meetings are linked to increased stress.
 ### Synthesis of Stress Trends
 The analyses show that the 26-45 age group experiences the highest stress, particularly those working long hours and attending frequent virtual meetings. This group faces dual pressures from peak career demands and heavy meeting schedules. To reduce stress, strategies should focus on minimizing meeting fatigue, offering flexible workloads, and supporting work-life balance.
+
+### Conclusion 
 
